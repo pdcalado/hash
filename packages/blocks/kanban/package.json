@@ -1,0 +1,48 @@
+{
+  "name": "kanban",
+  "version": "0.0.0",
+  "private": true,
+  "description": "kanban block",
+  "keywords": [
+    "blockprotocol",
+    "blocks"
+  ],
+  "license": "MIT",
+  "author": "Ciaran Morinan",
+  "scripts": {
+    "build": "node_modules/.bin/block-scripts build",
+    "dev": "node_modules/.bin/block-scripts dev",
+    "lint:tsc": "tsc --noEmit",
+    "serve": "node_modules/.bin/block-scripts serve"
+  },
+  "dependencies": {
+    "@blockprotocol/graph": "0.0.10"
+  },
+  "devDependencies": {
+    "block-scripts": "0.0.14",
+    "mock-block-dock": "0.0.17",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "block-scripts": {
+    "port": 63212
+  },
+  "blockprotocol": {
+    "blockType": {
+      "entryPoint": "react"
+    },
+    "displayName": "kanban",
+    "examples": [
+      {
+        "name": "World"
+      }
+    ],
+    "icon": "public/omega.svg",
+    "image": "public/block-preview.svg",
+    "protocol": "0.2"
+  }
+}
