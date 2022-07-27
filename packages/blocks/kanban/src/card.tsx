@@ -1,15 +1,18 @@
+import { Entity } from "@blockprotocol/graph";
 import { ReactElement } from "react";
 
-import { Card as CardType } from "./types";
-
-type CardProps = CardType;
+import { CardProperties, GetEntityFn, OwnerProperties } from "./types";
 
 export const Card = ({
-  assignee,
-  description,
-  stage,
-  title,
-}: CardProps): ReactElement | null => {
+  entity: { entityId, properties },
+  getEntities,
+}: {
+  entity: Entity<CardProperties>;
+  getEntities: GetEntityFn;
+}): ReactElement | null => {
+  const { title, description, stage } = properties;
+  const assignee = getEntities<Entity<OwnerProperties>>(entityId, "owner")?.[0];
+
   return (
     <div style={{ border: "1px solid black", padding: 20 }}>
       <h4>{title}</h4>
@@ -20,7 +23,7 @@ export const Card = ({
       </div>
       <div>
         <strong>Assignee: </strong>
-        {assignee.name}
+        <span>{assignee?.properties.name ?? "unassigned"}</span>
       </div>
     </div>
   );

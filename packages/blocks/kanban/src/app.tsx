@@ -1,32 +1,37 @@
-import { BlockComponent, useGraphBlockService } from "@blockprotocol/graph";
+import {
+  BlockComponent,
+  Entity,
+  useGraphBlockService,
+} from "@blockprotocol/graph";
 import { useCallback, useRef } from "react";
 
 import styles from "./base.module.scss";
 import { Column } from "./column";
-import { Column as ColumnType } from "./types";
+import { ColumnProperties, GetEntityFn } from "./types";
+import { getLinkedEntities } from "./shared";
 
 type BlockEntityProperties = {
   title: string;
-  columns: ColumnType[];
 };
 
 export const App: BlockComponent<BlockEntityProperties> = ({
   graph: {
     blockEntity: { entityId, properties = { title: "", columns: [] } },
+    blockGraph,
   },
 }) => {
   const blockRootRef = useRef<HTMLDivElement>(null);
   const { graphService } = useGraphBlockService(blockRootRef);
 
-  const updateSelf = useCallback(
-    (newProperties: Partial<BlockEntityProperties>) =>
-      graphService?.updateEntity({
-        data: { properties: newProperties, entityId },
-      }),
-    [entityId, graphService],
+  const { title } = properties;
+
+  const getEntities: GetEntityFn = useCallback(
+    <T extends Entity>(sourceEntityId: string, path: string) =>
+      getLinkedEntities<T>({ sourceEntityId, blockGraph, path }),
+    [blockGraph],
   );
 
-  const { title, columns } = properties;
+  const columns = getEntities<Entity<ColumnProperties>>(entityId, "columns");
 
   return (
     <div className={styles.block} ref={blockRootRef}>
@@ -34,8 +39,12 @@ export const App: BlockComponent<BlockEntityProperties> = ({
         <h1>{title}</h1>
       </div>
       <div>
-        {columns.map((column) => (
-          <Column key={column.title} {...column} />
+        {columns.map((columnEntity) => (
+          <Column
+            key={columnEntity.properties.title}
+            entity={columnEntity}
+            getEntities={getEntities}
+          />
         ))}
       </div>
     </div>

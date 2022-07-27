@@ -1,13 +1,19 @@
-export type Owner = {
-  name: string;
-  avatarUrl?: string;
+import { Entity } from "@blockprotocol/graph";
+
+export type ImageProperties = {
+  url: string;
 };
 
-export type Card = {
+export type OwnerProperties = {
+  name: string;
+  image: Entity<ImageProperties>;
+};
+
+export type CardProperties = {
   title: string;
   description?: string;
   stage?: string;
-  assignee?: Owner;
+  assignee?: Entity<OwnerProperties>;
 };
 
 export type ColumnRule = {
@@ -16,8 +22,12 @@ export type ColumnRule = {
   rule: "setValueOnEntrance" | "assignToColumnIfValueMet";
 };
 
-export type Column = {
+export type ColumnProperties = {
   title: string;
   rules: ColumnRule[];
-  cards: Card[];
+  cards: Entity<CardProperties>[];
+};
+
+export type GetEntityFn = {
+  <T extends Entity>(sourceEntityId: string, path: string): T[] | null;
 };

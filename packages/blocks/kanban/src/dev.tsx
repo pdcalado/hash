@@ -5,6 +5,7 @@
 import { MockBlockDock } from "mock-block-dock";
 import { render } from "react-dom";
 
+import exampleGraph from "../example-graph.json";
 import Component from "./index";
 
 const node = document.getElementById("app");
@@ -14,9 +15,11 @@ const DevApp = () => {
     <MockBlockDock
       blockDefinition={{ ReactComponent: Component }}
       blockEntity={{
-        entityId: "test-block-1",
+        entityId: "kanban1",
         properties: { name: "World" },
       }}
+      initialEntities={exampleGraph.entities}
+      initialLinks={exampleGraph.links}
       debug
     />
   );

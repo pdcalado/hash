@@ -1,0 +1,99 @@
+{
+  "entities": [
+    {
+      "entityId": "column1",
+      "properties": {
+        "title": "Backlog"
+      }
+    },
+    {
+      "entityId": "column2",
+      "properties": {
+        "title": "In Progress"
+      }
+    },
+    {
+      "entityId": "column3",
+      "properties": {
+        "title": "Done"
+      }
+    },
+    {
+      "entityId": "task1",
+      "properties": {
+        "name": "Fix the bug",
+        "description": "There's a bug, and we should fix it.",
+        "stage": "Backlog"
+      }
+    },
+    {
+      "entityId": "task2",
+      "properties": {
+        "name": "Add a feature",
+        "description": "Introduce a new button that does something.",
+        "stage": "In Progress"
+      }
+    },
+    {
+      "entityId": "user1",
+      "properties": {
+        "name": "Bob"
+      }
+    },
+    {
+      "entityId": "image1",
+      "properties": {
+        "url": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib"
+      }
+    }
+  ],
+  "links": [
+    {
+      "linkId": "link1",
+      "sourceEntityId": "kanban1",
+      "destinationEntityId": "column1",
+      "path": "columns",
+      "index": 0
+    },
+    {
+      "linkId": "link2",
+      "sourceEntityId": "kanban1",
+      "destinationEntityId": "column2",
+      "path": "columns",
+      "index": 1
+    },
+    {
+      "linkId": "link3",
+      "sourceEntityId": "kanban1",
+      "destinationEntityId": "column3",
+      "path": "columns",
+      "index": 0
+    },
+    {
+      "linkId": "link4",
+      "sourceEntityId": "column1",
+      "destinationEntityId": "task1",
+      "path": "cards",
+      "index": 0
+    },
+    {
+      "linkId": "link5",
+      "sourceEntityId": "column2",
+      "destinationEntityId": "task2",
+      "path": "cards",
+      "index": 0
+    },
+    {
+      "linkId": "link6",
+      "sourceEntityId": "user1",
+      "destinationEntityId": "image1",
+      "path": "image"
+    },
+    {
+      "linkId": "link6",
+      "sourceEntityId": "task2",
+      "destinationEntityId": "user1",
+      "path": "assignee"
+    }
+  ]
+}
