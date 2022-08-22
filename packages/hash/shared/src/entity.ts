@@ -120,7 +120,7 @@ export const getEntityChildEntity = (
     throw new Error("invariant: missing entity");
   }
 
-  if (isTextContainingEntityProperties(entity.properties)) {
+  if (isDraftTextContainingEntityProperties(entity.properties)) {
     const linkEntity = entity.properties.text.data;
 
     if (!isDraftEntity(linkEntity)) {

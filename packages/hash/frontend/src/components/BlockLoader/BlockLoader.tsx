@@ -8,7 +8,7 @@ import {
 import { HashBlockMeta } from "@hashintel/hash-shared/blocks";
 import {
   BlockEntity,
-  isTextContainingEntityProperties,
+  isDraftTextContainingEntityProperties,
   isTextProperties,
 } from "@hashintel/hash-shared/entity";
 import {
@@ -76,7 +76,7 @@ const removeTextEntities = (properties: {}) => {
     return { text: "" };
   }
 
-  if (isTextContainingEntityProperties(properties)) {
+  if (isDraftTextContainingEntityProperties(properties)) {
     return { ...properties, text: "" };
   }
 
