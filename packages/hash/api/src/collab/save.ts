@@ -5,6 +5,7 @@ import {
   isDraftTextContainingEntityProperties,
   isDraftTextEntity,
   LegacyLink,
+  renameMe,
 } from "@hashintel/hash-shared/entity";
 import {
   DraftEntity,
@@ -222,6 +223,22 @@ const calculateSaveActions = async (
           properties: nextProperties,
         },
       });
+
+      if (renameMe(nextProperties) && !renameMe(previousProperties)) {
+        actions.push({
+          createLink: {
+            link: {
+              sourceAccountId: accountId,
+              sourceEntityId: draftEntity.entityId,
+              // @todo this is not correct, but we don't know what the account id is from the legacy link
+              destinationAccountId: accountId,
+              // @todo handle this not being defined
+              destinationEntityId: nextProperties.text.__linkedData.entityId!,
+              path: "$.text",
+            },
+          },
+        });
+      }
     } else {
       // We need to create the entity, and possibly a new entity type too
 
@@ -313,6 +330,22 @@ const calculateSaveActions = async (
         actions.splice(idx === -1 ? 0 : idx, 0, action);
       } else {
         actions.push(action);
+      }
+
+      if (renameMe(properties)) {
+        actions.push({
+          createLink: {
+            link: {
+              sourceAccountId: accountId,
+              sourceEntityId: placeholderId,
+              // @todo this is not correct, but we don't know what the account id is from the legacy link
+              destinationAccountId: accountId,
+              // @todo handle this not being defined
+              destinationEntityId: properties.text.__linkedData.entityId!,
+              path: "$.text",
+            },
+          },
+        });
       }
     }
   }

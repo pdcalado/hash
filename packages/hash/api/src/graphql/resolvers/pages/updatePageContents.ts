@@ -10,6 +10,7 @@ import {
 } from "../../../model";
 import { exactlyOne } from "../../../util";
 import {
+  CreateLinkAction,
   EntityDefinition,
   MutationUpdatePageContentsArgs,
   ResolverFn,
@@ -19,6 +20,7 @@ import {
   UpdatePageContentsResult,
 } from "../../apiTypes.gen";
 import { LoggedInGraphQLContext } from "../../context";
+import { linkEntities } from "../link/createLink";
 
 const validateActionsInput = (actions: UpdatePageAction[]) => {
   for (const [i, action] of actions.entries()) {
@@ -31,6 +33,7 @@ const validateActionsInput = (actions: UpdatePageAction[]) => {
         action.swapBlockData,
         action.createEntity,
         action.createEntityType,
+        action.createLink,
       )
     ) {
       throw new UserInputError(
@@ -307,6 +310,28 @@ export const updatePageContents: ResolverFn<
             ),
             updatedByAccountId: user.accountId,
           });
+        }),
+    );
+
+    // Perform any create links.
+    await Promise.all(
+      actions
+        .map(({ createLink }) => createLink)
+        .filter((createLink): createLink is CreateLinkAction => !!createLink)
+        .map(async (createLink) => {
+          await linkEntities(
+            dataSources.db,
+            {
+              ...createLink.link,
+              sourceEntityId:
+                placeholderResults.get(createLink.link.sourceEntityId) ??
+                createLink.link.sourceEntityId,
+              destinationEntityId:
+                placeholderResults.get(createLink.link.destinationEntityId) ??
+                createLink.link.destinationEntityId,
+            },
+            user.accountId,
+          );
         }),
     );
 

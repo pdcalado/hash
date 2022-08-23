@@ -308,6 +308,10 @@ export const pageTypedef = gql`
     placeholderId: ID!
   }
 
+  input CreateLinkAction {
+    link: CreateLinkInput!
+  }
+
   """
   An action to perform when updating the contents of a page. Exactly one field must be
   specified.
@@ -323,6 +327,7 @@ export const pageTypedef = gql`
     swapBlockData: SwapBlockData
     createEntity: CreateEntityAction
     createEntityType: CreateEntityTypeAction
+    createLink: CreateLinkAction
   }
 
   """

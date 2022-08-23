@@ -67,18 +67,33 @@ export type LegacyLink<
   };
 };
 
+type PartialLegacyLink = Omit<LegacyLink, "data">;
+
+export const isPartialLegacyLink = (
+  data: unknown,
+): data is PartialLegacyLink => {
+  return isUnknownObject(data) && "__linkedData" in data;
+};
+
 /**
  * @deprecated
  */
 const isLegacyLink = (data: unknown): data is LegacyLink => {
   return (
     isUnknownObject(data) &&
-    "__linkedData" in data &&
     "data" in data &&
     typeof data.data === "object" &&
-    isEntity(data.data)
+    isEntity(data.data) &&
+    isPartialLegacyLink(data)
   );
 };
+
+export const renameMe = (
+  entityProperties: unknown,
+): entityProperties is { text: PartialLegacyLink } =>
+  isUnknownObject(entityProperties) &&
+  "text" in entityProperties &&
+  isPartialLegacyLink(entityProperties.text);
 
 /**
  * @todo this can be used when a text entity could exist on any property
@@ -88,10 +103,9 @@ export const isTextContainingEntityProperties = (
   entityProperties: unknown,
 ): entityProperties is { text: LegacyLink<Text> } => {
   return (
-    isUnknownObject(entityProperties) &&
-    "text" in entityProperties &&
-    isLegacyLink(entityProperties.text) &&
-    isTextEntity(entityProperties.text.data)
+    renameMe(entityProperties) &&
+    "data" in entityProperties.text &&
+    isTextEntity((entityProperties.text as any).data)
   );
 };
 
