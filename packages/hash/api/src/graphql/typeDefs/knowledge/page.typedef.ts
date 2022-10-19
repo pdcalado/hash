@@ -33,30 +33,9 @@ export const persistedPageTypedef = gql`
 
     # ENTITY INTERFACE FIELDS BEGIN #
     """
-    The id of the entity
+    The metadata of the entity.
     """
-    entityId: ID!
-    """
-    The specific version of the entity
-    """
-    entityVersion: String!
-    """
-    The id of the account that owns this entity.
-    """
-    ownedById: ID!
-    """
-    Alias of ownedById - the id of the account that owns this entity.
-    """
-    accountId: ID!
-      @deprecated(reason: "accountId is deprecated. Use ownedById instead.")
-    """
-    The versioned URI of this entity's type.
-    """
-    entityTypeId: String!
-    """
-    The full entity type definition.
-    """
-    entityType: PersistedEntityType!
+    metadata: PersistedEntityMetadata!
     """
     The linked entities of the entity.
     """

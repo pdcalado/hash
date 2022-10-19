@@ -1,15 +1,7 @@
 import { gql } from "apollo-server-express";
 
 export const persistedEntityTypedef = gql`
-  interface PersistedEntity {
-    # These fields are repeated everywhere they're used because
-    # (a) GQL requires it - https://github.com/graphql/graphql-spec/issues/533
-    # (b) string interpolation breaks the code generator's introspection
-    #
-    # Could maybe use a custom schema loader to parse it ourselves:
-    # https://www.graphql-code-generator.com/docs/getting-started/schema-field#custom-schema-loader
-    #
-    # For now, _COPY ANY CHANGES_ from here to any type that 'implements Entity'
+  type PersistedEntityMetadata {
     """
     The id of the entity
     """
@@ -35,6 +27,21 @@ export const persistedEntityTypedef = gql`
     The full entity type definition.
     """
     entityType: PersistedEntityType!
+  }
+
+  interface PersistedEntity {
+    # These fields are repeated everywhere they're used because
+    # (a) GQL requires it - https://github.com/graphql/graphql-spec/issues/533
+    # (b) string interpolation breaks the code generator's introspection
+    #
+    # Could maybe use a custom schema loader to parse it ourselves:
+    # https://www.graphql-code-generator.com/docs/getting-started/schema-field#custom-schema-loader
+    #
+    # For now, _COPY ANY CHANGES_ from here to any type that 'implements Entity'
+    """
+    The metadata of the entity.
+    """
+    metadata: PersistedEntityMetadata!
     """
     The linked entities of the entity.
     """
@@ -48,30 +55,9 @@ export const persistedEntityTypedef = gql`
   type UnknownPersistedEntity implements PersistedEntity {
     # ENTITY INTERFACE FIELDS BEGIN #
     """
-    The id of the entity
+    The metadata of the entity.
     """
-    entityId: ID!
-    """
-    The specific version of the entity
-    """
-    entityVersion: String!
-    """
-    The id of the account that owns this entity.
-    """
-    ownedById: ID!
-    """
-    Alias of ownedById - the id of the account that owns this entity.
-    """
-    accountId: ID!
-      @deprecated(reason: "accountId is deprecated. Use ownedById instead.")
-    """
-    The versioned URI of this entity's type.
-    """
-    entityTypeId: String!
-    """
-    The full entity type definition.
-    """
-    entityType: PersistedEntityType!
+    metadata: PersistedEntityMetadata!
     """
     The linked entities of the entity.
     """
