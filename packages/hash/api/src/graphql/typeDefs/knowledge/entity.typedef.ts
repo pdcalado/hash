@@ -199,7 +199,7 @@ export const persistedEntityTypedef = gql`
       Associated Entities to either create/get and link to this entity.
       """
       linkedEntities: [PersistedLinkedEntityDefinition!]
-    ): UnknownPersistedEntity!
+    ): EntityWithMetadata!
 
     """
     Update an entity.
