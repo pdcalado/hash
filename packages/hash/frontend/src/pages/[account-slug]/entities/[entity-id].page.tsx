@@ -26,12 +26,14 @@ const Page: NextPageWithLayout = () => {
   const [loading, setLoading] = useState(true);
   const [showSelectEntityType, setShowSelectEntityType] = useState(false);
 
+  const entityId = router.query["entity-id"] as string;
+  const entityTypeId = router.query["entity-type-id"] as string;
+
   useEffect(() => {
+    let cancelled = false;
+
     const init = async () => {
       try {
-        const entityId = router.query["entity-id"] as string;
-        const entityTypeId = router.query["entity-type-id"] as string;
-
         if (entityId === "new") {
           if (entityTypeId) {
             return createNewEntityAndRedirect({ entityTypeId });
@@ -42,9 +44,12 @@ const Page: NextPageWithLayout = () => {
           return;
         }
 
+        setShowSelectEntityType(false);
+        setLoading(true);
+
         const { data: subgraph } = await getEntity({ data: { entityId } });
 
-        if (subgraph) {
+        if (!cancelled && subgraph) {
           try {
             /** @todo - error handling, this will throw if entity doesn't exist, but we may want to handle or report
              *    other errors */
@@ -54,12 +59,18 @@ const Page: NextPageWithLayout = () => {
           }
         }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     void init();
-  }, [router.query, getEntity, createNewEntityAndRedirect]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getEntity, createNewEntityAndRedirect, entityId, entityTypeId]);
 
   if (!authenticatedUser) {
     return null;
