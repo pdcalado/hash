@@ -1,6 +1,6 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@hashintel/hash-design-system";
-import { Box, Tabs, tabsClasses } from "@mui/material";
+import { Box, Skeleton, Tabs, tabsClasses } from "@mui/material";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
@@ -90,35 +90,39 @@ export const EntityTypeTabs = ({ isDraft }: { isDraft: boolean }) => {
                 count={entities?.length ?? 0}
                 active={currentTab === "entities"}
               />,
-              <TabLink
-                key="create"
-                value="create"
-                href={`/@${
-                  activeWorkspace?.shortname
-                }/new/entity?entity-type-id=${encodeURIComponent(
-                  entityType.$id,
-                )}`}
-                label="Create new entity"
-                sx={(theme) => ({
-                  ml: "auto",
-                  color: "inherit",
-                  fill: theme.palette.blue[70],
-                  "&:hover": {
-                    color: theme.palette.primary.main,
-                    fill: theme.palette.blue[60],
-                  },
-                })}
-                icon={
-                  <FontAwesomeIcon
-                    icon={faPlus}
-                    sx={(theme) => ({
-                      ...theme.typography.smallTextLabels,
-                      fill: "inherit",
-                      ml: 1,
-                    })}
-                  />
-                }
-              />,
+              entityType ? (
+                <TabLink
+                  key="create"
+                  value="create"
+                  href={`/@${
+                    activeWorkspace?.shortname
+                  }/new/entity?entity-type-id=${encodeURIComponent(
+                    entityType.$id,
+                  )}`}
+                  label="Create new entity"
+                  sx={(theme) => ({
+                    ml: "auto",
+                    color: "inherit",
+                    fill: theme.palette.blue[70],
+                    "&:hover": {
+                      color: theme.palette.primary.main,
+                      fill: theme.palette.blue[60],
+                    },
+                  })}
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faPlus}
+                      sx={(theme) => ({
+                        ...theme.typography.smallTextLabels,
+                        fill: "inherit",
+                        ml: 1,
+                      })}
+                    />
+                  }
+                />
+              ) : (
+                <Skeleton sx={{ marginTop: 1 }} width={50} height={25} />
+              ),
             ]}
       </Tabs>
     </Box>

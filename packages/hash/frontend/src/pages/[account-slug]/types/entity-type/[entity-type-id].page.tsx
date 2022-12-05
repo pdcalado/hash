@@ -7,7 +7,7 @@ import {
 } from "@blockprotocol/type-system-web";
 import { faAsterisk } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@hashintel/hash-design-system";
-import { Box, Container, Theme, Typography } from "@mui/material";
+import { Box, Container, Skeleton, Theme, Typography } from "@mui/material";
 import { GlobalStyles } from "@mui/system";
 import { Buffer } from "buffer/";
 import { useRouter } from "next/router";
@@ -124,7 +124,7 @@ const Page: NextPageWithLayout = () => {
     remoteEntityType,
     updateEntityType,
     publishDraft,
-    { loading: loadingRemoteEntityType },
+    // { loading: loadingRemoteEntityType },
   ] = useEntityTypeValue(
     baseEntityTypeUri,
     routeNamespace?.accountId ?? null,
@@ -148,7 +148,8 @@ const Page: NextPageWithLayout = () => {
     },
   );
 
-  const entityType = remoteEntityType ?? draftEntityType;
+  // const entityType = remoteEntityType ?? draftEntityType;
+  const entityType = null as EntityType | null;
 
   const handleSubmit = wrapHandleSubmit(async (data) => {
     const entityTypeSchema = getSchemaFromEditorForm(data.properties);
@@ -178,28 +179,26 @@ const Page: NextPageWithLayout = () => {
 
   const currentTab = useCurrentTab();
 
-  if (!entityType) {
-    if (loadingRemoteEntityType) {
-      return null;
-    } else {
-      return <PageErrorState />;
-    }
-  }
+  // if (!entityType) {
+  //   if (loadingRemoteEntityType) {
+  //     return null;
+  //   } else {
+  //     return <PageErrorState />;
+  //   }
+  // }
 
-  if (!routeNamespace) {
-    if (loadingNamespace) {
-      return null;
-    } else {
-      throw new Error("Namespace for valid entity somehow missing");
-    }
-  }
-
-  const currentVersion = draftEntityType ? 0 : extractVersion(entityType.$id);
+  // if (!routeNamespace) {
+  //   if (loadingNamespace) {
+  //     return null;
+  //   } else {
+  //     throw new Error("Namespace for valid entity somehow missing");
+  //   }
+  // }
 
   return (
     <>
       <Head>
-        <title>{entityType.title} | Entity Type | HASH</title>
+        <title>{entityType?.title ?? "..."} | Entity Type | HASH</title>
       </Head>
       <FormProvider {...formMethods}>
         <PropertyTypesContext.Provider value={propertyTypes}>
@@ -227,30 +226,41 @@ const Page: NextPageWithLayout = () => {
                         href: "#",
                         id: "entity-types",
                       },
-                      {
-                        title: entityType.title,
-                        href: "#",
-                        id: entityType.$id,
-                        icon: <FontAwesomeIcon icon={faAsterisk} />,
-                      },
+                      /**
+                       * @todo: make the breadcrumbs component support loading skeletons
+                       */
+                      ...(entityType
+                        ? [
+                            {
+                              title: entityType.title,
+                              href: "#",
+                              id: entityType.$id,
+                              icon: <FontAwesomeIcon icon={faAsterisk} />,
+                            },
+                          ]
+                        : []),
                     ]}
                     scrollToTop={() => {}}
                   />
-                  <EditBar
-                    currentVersion={currentVersion}
-                    discardButtonProps={
-                      // @todo confirmation of discard when draft
-                      isDraft
-                        ? {
-                            href: `/${router.query["account-slug"]}/new/types/entity-type`,
-                          }
-                        : {
-                            onClick() {
-                              reset();
-                            },
-                          }
-                    }
-                  />
+                  {entityType && (
+                    <EditBar
+                      currentVersion={
+                        draftEntityType ? 0 : extractVersion(entityType.$id)
+                      }
+                      discardButtonProps={
+                        // @todo confirmation of discard when draft
+                        isDraft
+                          ? {
+                              href: `/${router.query["account-slug"]}/new/types/entity-type`,
+                            }
+                          : {
+                              onClick() {
+                                reset();
+                              },
+                            }
+                      }
+                    />
+                  )}
 
                   <Box pt={3.75}>
                     <Container>
@@ -282,23 +292,27 @@ const Page: NextPageWithLayout = () => {
                           </>
                         }
                       />
-                      <Typography
-                        variant="h1"
-                        fontWeight="bold"
-                        mt={3}
-                        mb={5.25}
-                      >
-                        <FontAwesomeIcon
-                          icon={faAsterisk}
-                          sx={(theme) => ({
-                            fontSize: 40,
-                            mr: 3,
-                            color: theme.palette.gray[70],
-                            verticalAlign: "middle",
-                          })}
-                        />
-                        {entityType.title}
-                      </Typography>
+                      {entityType ? (
+                        <Typography
+                          variant="h1"
+                          fontWeight="bold"
+                          mt={3}
+                          mb={5.25}
+                        >
+                          <FontAwesomeIcon
+                            icon={faAsterisk}
+                            sx={(theme) => ({
+                              fontSize: 40,
+                              mr: 3,
+                              color: theme.palette.gray[70],
+                              verticalAlign: "middle",
+                            })}
+                          />
+                          {entityType.title}
+                        </Typography>
+                      ) : (
+                        <Skeleton height={40} width={150} />
+                      )}
 
                       <EntityTypeTabs isDraft={isDraft} />
                     </Container>
@@ -306,10 +320,10 @@ const Page: NextPageWithLayout = () => {
                 </Box>
 
                 <Box py={5}>
-                  <Container>
+                  {/* <Container>
                     {currentTab === "definition" ? <DefinitionTab /> : null}
                     {currentTab === "entities" ? <EntitiesTab /> : null}
-                  </Container>
+                  </Container> */}
                 </Box>
               </Box>
             </EntityTypeEntitiesContext.Provider>
