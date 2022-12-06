@@ -16,7 +16,7 @@ export const BooleanEditor: ValueCellEditorComponent = ({
 
   return (
     <TextField
-      sx={{ my: "1px" }}
+      sx={{ width: "100%" }}
       select
       SelectProps={{ defaultOpen: true }}
       value={numberValue}

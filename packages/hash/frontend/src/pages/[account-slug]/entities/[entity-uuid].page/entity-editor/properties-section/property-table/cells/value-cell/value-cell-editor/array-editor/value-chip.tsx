@@ -5,9 +5,11 @@ import { faText } from "../../../../../../../../../../../shared/icons/pro/fa-tex
 export const ValueChip = ({
   value,
   selected,
+  onTypeClick,
 }: {
   value: unknown;
   selected: boolean;
+  onTypeClick?: () => void;
 }) => {
   return (
     <Chip
@@ -22,8 +24,14 @@ export const ValueChip = ({
         },
       ]}
       icon={
-        <Tooltip title="Text" placement="top">
+        <Tooltip title={onTypeClick ? "Change type" : "Text"} placement="top">
           <FontAwesomeIcon
+            onClick={(event) => {
+              if (onTypeClick) {
+                event.stopPropagation();
+                onTypeClick?.();
+              }
+            }}
             icon={{ icon: faText }}
             sx={{
               /**

@@ -1,19 +1,15 @@
 import { TextField } from "@hashintel/hash-design-system";
-import { types } from "@hashintel/hash-shared/types";
 import produce from "immer";
 import { ValueCellEditorComponent } from "../types";
 
-export const NumberOrStringEditor: ValueCellEditorComponent = ({
-  value: cell,
-  onChange,
-}) => {
-  const { value, expectedTypes } = cell.data.property;
-  /** @todo remove expectedTypes[0] when multiple data types are supported */
-  const isNumber = types.dataType.number.title === expectedTypes[0];
+export const NumberOrStringEditor: ValueCellEditorComponent<{
+  isNumber?: boolean;
+}> = ({ value: cell, onChange, isNumber }) => {
+  const { value } = cell.data.property;
 
   return (
     <TextField
-      sx={{ my: "1px" }}
+      sx={{ width: "100%" }}
       autoFocus
       value={value}
       type={isNumber ? "number" : "text"}
