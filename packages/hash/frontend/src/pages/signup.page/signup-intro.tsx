@@ -8,12 +8,13 @@ import {
 import { useRouter } from "next/router";
 
 import { Box } from "@mui/material";
-import { LogoIcon, SpinnerIcon } from "../../shared/icons";
+import { LogoIcon } from "../../shared/icons";
 import { TextInput } from "../../components/forms/TextInput";
 import { InviteHeader } from "../shared/invite-header";
 import { InvitationInfo } from "../shared/auth-utils";
 import { Link } from "../../shared/ui";
 import { useAuthInfo } from "../shared/auth-info-context";
+import { Icon } from "../../shared/icons/icon";
 
 type SignupIntroProps = {
   handleSubmit: (email: string) => void;
@@ -146,7 +147,8 @@ export const SignupIntro: FunctionComponent<SignupIntroProps> = ({
           }}
         >
           {loading ? (
-            <SpinnerIcon
+            <Icon
+              icon="spinner"
               style={{
                 animation: "spin 1s linear infinite",
                 height: "1rem",

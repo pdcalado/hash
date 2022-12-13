@@ -1,6 +1,5 @@
 import { useState, FunctionComponent } from "react";
-
-import { HumanGreetingIcon, PeopleIcon, SpinnerIcon } from "../../shared/icons";
+import { Icon } from "../../shared/icons/icon";
 
 type WayToUseHash = "BY_THEMSELVES" | "WITH_A_TEAM";
 
@@ -13,7 +12,8 @@ type AccountUsageProps = {
 const USAGE_OPTIONS = [
   {
     icon: (
-      <HumanGreetingIcon
+      <Icon
+        icon="human-greeting"
         style={{ marginBottom: "1.5rem", width: "5rem", height: "5rem" }}
       />
     ),
@@ -23,7 +23,8 @@ const USAGE_OPTIONS = [
   },
   {
     icon: (
-      <PeopleIcon
+      <Icon
+        icon="people"
         style={{ marginBottom: "1.5rem", width: "5rem", height: "5rem" }}
       />
     ),
@@ -162,7 +163,8 @@ export const AccountUsage: FunctionComponent<AccountUsageProps> = ({
         disabled={!activeOption || loading}
       >
         {loading ? (
-          <SpinnerIcon
+          <Icon
+            icon="spinner"
             style={{
               animation: "spin 1s linear infinite",
               color: "#ffffff",

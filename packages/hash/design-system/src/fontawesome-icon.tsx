@@ -11,6 +11,13 @@ export const fontAwesomeIconClasses = {
   icon: "FontAwesomeIcon",
 };
 
+export const defaultIconStyle = {
+  color: "currentColor",
+  width: "1em",
+  height: "1em",
+  fontSize: "16px",
+};
+
 // gotten from https://mui.com/components/icons/#font-awesome
 export const FontAwesomeIcon = forwardRef<
   SVGSVGElement,
@@ -26,15 +33,7 @@ export const FontAwesomeIcon = forwardRef<
     <SvgIcon
       ref={ref}
       viewBox={`0 0 ${width} ${height}`}
-      sx={[
-        {
-          color: "currentColor",
-          width: "1em",
-          height: "1em",
-          fontSize: "16px",
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
+      sx={[defaultIconStyle, ...(Array.isArray(sx) ? sx : [sx])]}
       {...otherProps}
       classes={{
         ...(otherProps.classes ?? {}),

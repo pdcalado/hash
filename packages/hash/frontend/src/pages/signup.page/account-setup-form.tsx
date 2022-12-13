@@ -4,7 +4,8 @@ import { Controller, useForm } from "react-hook-form";
 
 import { SelectInput } from "../../components/forms/SelectInput";
 import { useShortnameInput } from "../../components/hooks/useShortnameInput";
-import { InfoIcon, SpinnerIcon, LogoIcon } from "../../shared/icons";
+import { LogoIcon } from "../../shared/icons";
+import { Icon } from "../../shared/icons/icon";
 import { InvitationInfo, ORG_ROLES } from "../shared/auth-utils";
 
 type AccountSetupFormProps = {
@@ -210,7 +211,8 @@ export const AccountSetupForm: FunctionComponent<AccountSetupFormProps> = ({
                   transitionProperty: "opacity",
                 }}
               >
-                <InfoIcon
+                <Icon
+                  icon="info"
                   style={{
                     color: shortnameError ? "#EF4444" : "#3B82F6",
                     height: "1.5rem",
@@ -370,7 +372,8 @@ export const AccountSetupForm: FunctionComponent<AccountSetupFormProps> = ({
             }
           >
             {loading ? (
-              <SpinnerIcon
+              <Icon
+                icon="spinner"
                 style={{
                   animation: "spin 1s linear infinite",
                   color: "#ffffff",

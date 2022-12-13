@@ -1,7 +1,7 @@
 import { Box, SxProps, Theme, Typography } from "@mui/material";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import { useKey } from "rooks";
-import { SpinnerIcon } from "../../../shared/icons";
+import { Icon } from "../../../shared/icons/icon";
 
 export interface SuggesterProps<T> {
   options: T[];
@@ -85,7 +85,8 @@ export const Suggester = <T,>({
               paddingTop: "0.25rem",
             }}
           >
-            <SpinnerIcon
+            <Icon
+              icon="spinner"
               style={{
                 animation: "spin 1s linear infinite",
                 color: "#6B7280",

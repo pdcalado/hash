@@ -1,5 +1,5 @@
 import { Chip } from "@hashintel/hash-design-system";
-import { LinksIcon } from "../../../../../shared/icons";
+import { Icon } from "../../../../../shared/icons/icon";
 import { SectionEmptyState } from "../../../shared/section-empty-state";
 import { SectionWrapper } from "../../../shared/section-wrapper";
 
@@ -11,7 +11,7 @@ export const PropertiesSectionEmptyState = () => {
     >
       <SectionEmptyState
         title="This entity currently has no properties"
-        titleIcon={<LinksIcon />}
+        titleIcon={<Icon icon="links" style={{ fontSize: 24 }} />}
         description="Properties contain data about entities, and are inherited from types"
       />
     </SectionWrapper>

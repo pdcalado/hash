@@ -1,5 +1,5 @@
 import { Chip } from "@hashintel/hash-design-system";
-import { LinksIcon } from "../../../../../shared/icons";
+import { Icon } from "../../../../../shared/icons/icon";
 import { SectionEmptyState } from "../../../shared/section-empty-state";
 import { SectionWrapper } from "../../../shared/section-wrapper";
 
@@ -8,7 +8,7 @@ export const LinksSectionEmptyState = () => {
     <SectionWrapper title="Links" titleStartContent={<Chip label="No links" />}>
       <SectionEmptyState
         title="This entity currently has no links"
-        titleIcon={<LinksIcon />}
+        titleIcon={<Icon icon="links" style={{ fontSize: 24 }} />}
         description="Links contain information about connections or relationships between different entities"
       />
     </SectionWrapper>

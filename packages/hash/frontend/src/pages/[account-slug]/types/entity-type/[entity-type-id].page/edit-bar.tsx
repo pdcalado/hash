@@ -3,10 +3,10 @@ import { FontAwesomeIcon } from "@hashintel/hash-design-system";
 import { Box, Collapse, Container, Stack, Typography } from "@mui/material";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useFormState } from "react-hook-form";
-import { PencilSimpleLine } from "../../../../../shared/icons/svg";
 import { useEditBarContext } from "../../../../../shared/edit-bar-scroller";
 import { Button, ButtonProps } from "../../../../../shared/ui/button";
 import { EntityTypeEditorForm } from "./shared/form-types";
+import { Icon } from "../../../../../shared/icons/icon";
 
 const useFrozenValue = <T extends any>(value: T): T => {
   const { isDirty } = useFormState<EntityTypeEditorForm>();
@@ -254,7 +254,7 @@ export const EditBar = ({
           />
         ) : (
           <EditBarContents
-            icon={<PencilSimpleLine />}
+            icon={<Icon icon="pencil-simple" sx={{ fontSize: 18 }} />}
             title="Currently editing"
             label={`Version ${frozenVersion} -> ${frozenVersion + 1}`}
             discardButtonProps={{
