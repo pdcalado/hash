@@ -8,6 +8,6 @@ export { type ErrorCode } from "./error-code";
  */
 export type Status<D> = {
   code: ErrorCode;
-  message: string;
+  message?: string;
   details: D;
 };

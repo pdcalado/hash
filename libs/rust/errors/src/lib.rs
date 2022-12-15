@@ -9,7 +9,8 @@ pub mod error_code;
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Status<D: Serialize> {
     code: ErrorCode,
-    message: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    message: Option<String>,
     details: D,
 }
 
@@ -17,7 +18,7 @@ impl<D> Status<D>
 where
     D: Serialize + for<'de> Deserialize<'de>,
 {
-    pub fn new(code: ErrorCode, message: String, details: D) -> Self {
+    pub fn new(code: ErrorCode, message: Option<String>, details: D) -> Self {
         Self {
             code,
             message,
@@ -29,7 +30,7 @@ where
         self.code
     }
 
-    pub fn message(&self) -> &str {
+    pub fn message(&self) -> &Option<String> {
         &self.message
     }
 
