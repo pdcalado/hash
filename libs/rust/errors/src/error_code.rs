@@ -3,6 +3,8 @@
 
 use typeshare::typeshare;
 
+mod http_compat;
+
 /// The canonical error codes for software within the HASH ecosystem.
 ///
 /// Sometimes multiple error codes may apply. Services should return the most specific error code
