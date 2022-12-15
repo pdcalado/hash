@@ -23,12 +23,14 @@ pub enum ErrorCode {
     /// HTTP Mapping: 499 Client Closed Request
     Cancelled,
 
-    /// Unknown error. For example, this error may be returned when a `Status` value received
+    /// Unknown error. For example, this error may be returned when a [`Status`] value received
     /// from another address space belongs to an error space that is not known in this address
     /// space. Also errors raised by APIs that do not return enough error information may be
     /// converted to this error.
     ///
     /// HTTP Mapping: 500 Internal Server Error
+    ///
+    /// [`Status`]: crate::Status
     Unknown,
 
     /// The client specified an invalid argument. Note that this differs from
