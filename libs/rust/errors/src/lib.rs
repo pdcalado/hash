@@ -4,8 +4,8 @@ use crate::error_code::ErrorCode;
 
 pub mod error_code;
 
-/// The [`Status`] type defines a logical error model that is suitable for different programming
-/// environments, including REST APIs and RPC APIs.
+/// Defines a logical error model that is suitable for different programming environments, including
+/// REST APIs and RPC APIs.
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Status<D: Serialize> {
     code: ErrorCode,
