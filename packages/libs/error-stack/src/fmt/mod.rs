@@ -59,7 +59,7 @@
 //! struct Warning(&'static str);
 //!
 //! // This hook will never be called, because a later invocation of `install_debug_hook` overwrites
-//! // the hook for the type `ErrorCode`.
+//! // the hook for the type `StatusCode`.
 //! Report::install_debug_hook::<ErrorCode>(|_, _| {
 //!     unreachable!("will never be called");
 //! });
@@ -68,7 +68,7 @@
 //! // value, we use `HookContext` here as storage, to store values specific to this hook.
 //! // Here we make use of the auto-incrementing feature.
 //! // The incrementation is type specific, meaning that `context.increment()` for the `Suggestion` hook
-//! // will not influence the counter of the `ErrorCode` or `Warning` hook.
+//! // will not influence the counter of the `StatusCode` or `Warning` hook.
 //! Report::install_debug_hook::<Suggestion>(|Suggestion(value), context| {
 //!     let idx = context.increment_counter() + 1;
 //!     context.push_body(format!("suggestion {idx}: {value}"));

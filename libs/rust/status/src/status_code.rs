@@ -4,14 +4,14 @@
 use serde::{Deserialize, Serialize};
 mod http_compat;
 
-/// The canonical error codes for software within the HASH ecosystem.
+/// The canonical status codes for software within the HASH ecosystem.
 ///
-/// Sometimes multiple error codes may apply. Services should return the most specific error code
+/// Sometimes multiple status codes may apply. Services should return the most specific status code
 /// that applies. For example, prefer [`OutOfRange`] over [`FailedPrecondition`] if both codes
 /// apply. Similarly prefer [`NotFound`] or [`AlreadyExists`] over [`FailedPrecondition`].
 #[derive(Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum ErrorCode {
+pub enum StatusCode {
     /// Not an error; returned on success.
     ///
     /// HTTP Mapping: 200 OK
