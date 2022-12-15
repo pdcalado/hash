@@ -11,18 +11,18 @@ pub struct Status<D: Serialize> {
     code: ErrorCode,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     message: Option<String>,
-    details: D,
+    contents: D,
 }
 
 impl<D> Status<D>
 where
     D: Serialize + for<'de> Deserialize<'de>,
 {
-    pub fn new(code: ErrorCode, message: Option<String>, details: D) -> Self {
+    pub fn new(code: ErrorCode, message: Option<String>, contents: D) -> Self {
         Self {
             code,
             message,
-            details,
+            contents,
         }
     }
 
@@ -34,7 +34,7 @@ where
         &self.message
     }
 
-    pub fn details(&self) -> &D {
-        &self.details
+    pub fn contents(&self) -> &D {
+        &self.contents
     }
 }

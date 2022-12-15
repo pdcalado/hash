@@ -9,5 +9,5 @@ export { type ErrorCode } from "./error-code";
 export type Status<D> = {
   code: ErrorCode;
   message?: string;
-  details: D;
+  contents: D;
 };
