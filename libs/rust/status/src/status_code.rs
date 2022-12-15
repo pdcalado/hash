@@ -2,6 +2,7 @@
 //  https://cloud.google.com/apis/design/errors
 
 use serde::{Deserialize, Serialize};
+
 mod http_compat;
 
 /// The canonical status codes for software within the HASH ecosystem.
