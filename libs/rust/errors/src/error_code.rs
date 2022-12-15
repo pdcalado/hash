@@ -1,8 +1,7 @@
 // Attribution: *Heavily* inspired by the Google Cloud API Error Model
 //  https://cloud.google.com/apis/design/errors
 
-use typeshare::typeshare;
-
+use serde::{Deserialize, Serialize};
 mod http_compat;
 
 /// The canonical error codes for software within the HASH ecosystem.
@@ -10,8 +9,8 @@ mod http_compat;
 /// Sometimes multiple error codes may apply. Services should return the most specific error code
 /// that applies. For example, prefer [`OutOfRange`] over [`FailedPrecondition`] if both codes
 /// apply. Similarly prefer [`NotFound`] or [`AlreadyExists`] over [`FailedPrecondition`].
-#[derive(Copy, Clone, Eq, PartialEq)]
-#[typeshare]
+#[derive(Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
     /// Not an error; returned on success.
     ///
