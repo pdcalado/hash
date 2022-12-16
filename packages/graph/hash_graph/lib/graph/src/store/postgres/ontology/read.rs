@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use async_trait::async_trait;
 use error_stack::{IntoReport, Result, ResultExt};
 use futures::{StreamExt, TryStreamExt};
 use tokio_postgres::GenericClient;
@@ -11,25 +10,25 @@ use crate::{
     ontology::{OntologyElementMetadata, OntologyType, OntologyTypeWithMetadata},
     provenance::{OwnedById, ProvenanceMetadata, UpdatedById},
     store::{
-        crud::Read,
         postgres::query::{Distinctness, PostgresRecord, SelectCompiler},
         query::{Filter, OntologyQueryPath},
         AsClient, PostgresStore, QueryError,
     },
 };
 
-#[async_trait]
-impl<C: AsClient, T> Read<T> for PostgresStore<C>
-where
-    T: OntologyTypeWithMetadata + PostgresRecord,
-    for<'p> T::QueryPath<'p>: OntologyQueryPath,
-{
+impl<C: AsClient> PostgresStore<C> {
     #[tracing::instrument(level = "info", skip(self, filter))]
-    async fn read(&self, filter: &Filter<T>) -> Result<Vec<T>, QueryError> {
-        let versioned_uri_path = <T::QueryPath<'static> as OntologyQueryPath>::versioned_uri();
-        let schema_path = <T::QueryPath<'static> as OntologyQueryPath>::schema();
-        let owned_by_id_path = <T::QueryPath<'static> as OntologyQueryPath>::owned_by_id();
-        let updated_by_id_path = <T::QueryPath<'static> as OntologyQueryPath>::updated_by_id();
+    pub(super) async fn read_ontology_type<'p, T>(
+        &self,
+        filter: &Filter<'p, T>,
+    ) -> Result<Vec<T>, QueryError>
+    where
+        T: OntologyTypeWithMetadata + PostgresRecord<QueryPath<'p>: OntologyQueryPath>,
+    {
+        let versioned_uri_path = <T::QueryPath<'p> as OntologyQueryPath>::versioned_uri();
+        let schema_path = <T::QueryPath<'p> as OntologyQueryPath>::schema();
+        let owned_by_id_path = <T::QueryPath<'p> as OntologyQueryPath>::owned_by_id();
+        let updated_by_id_path = <T::QueryPath<'p> as OntologyQueryPath>::updated_by_id();
 
         let mut compiler = SelectCompiler::new();
 

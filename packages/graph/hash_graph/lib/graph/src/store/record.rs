@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{
     store::query::{Filter, QueryPath},
     subgraph::SubgraphIndex,
@@ -7,7 +9,7 @@ use crate::{
 ///
 /// [`store`]: crate::store
 pub trait Record: Sized + Send {
-    type EditionId: Send + Sync + SubgraphIndex<Self>;
+    type EditionId: Debug + SubgraphIndex<Self> + Send + Sync;
     type QueryPath<'p>: QueryPath + Send + Sync;
 
     fn edition_id(&self) -> &Self::EditionId;

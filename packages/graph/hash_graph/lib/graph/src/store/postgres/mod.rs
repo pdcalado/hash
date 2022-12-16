@@ -25,13 +25,12 @@ use uuid::Uuid;
 pub use self::pool::{AsClient, PostgresStorePool};
 use crate::{
     identifier::{account::AccountId, knowledge::EntityEditionId, ontology::OntologyTypeEditionId},
-    ontology::{OntologyElementMetadata, OntologyTypeWithMetadata},
+    ontology::OntologyElementMetadata,
     provenance::{OwnedById, ProvenanceMetadata, UpdatedById},
     store::{
-        crud::Read,
         error::VersionedUriAlreadyExists,
         postgres::{ontology::OntologyDatabaseType, query::PostgresRecord, version_id::VersionId},
-        query::{Filter, OntologyQueryPath},
+        query::OntologyQueryPath,
         AccountStore, BaseUriAlreadyExists, BaseUriDoesNotExist, InsertionError, QueryError,
         Record, UpdateError,
     },
@@ -333,6 +332,7 @@ where
     async fn update<T>(
         &self,
         database_type: T,
+        owned_by_id: OwnedById,
         updated_by_id: UpdatedById,
     ) -> Result<(VersionId, OntologyElementMetadata), UpdateError>
     where
@@ -351,15 +351,6 @@ where
                 .attach_printable(uri.base_uri().clone())
                 .change_context(UpdateError));
         }
-
-        // TODO - address potential race condition
-        //  https://app.asana.com/0/1202805690238892/1203201674100967/f
-        let previous_ontology_type =
-            <Self as Read<T::WithMetadata>>::read_one(self, &Filter::for_base_uri(uri.base_uri()))
-                .await
-                .change_context(UpdateError)?;
-
-        let owned_by_id = previous_ontology_type.metadata().owned_by_id();
 
         let version_id = VersionId::new(Uuid::new_v4());
         self.insert_version_id(version_id)

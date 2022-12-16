@@ -5,22 +5,28 @@ use type_system::DataType;
 
 use crate::{
     identifier::ontology::OntologyTypeEditionId,
-    ontology::{DataTypeWithMetadata, OntologyElementMetadata},
+    ontology::{DataTypeWithMetadata, OntologyElementMetadata, OntologyTypeWithMetadata},
     provenance::{OwnedById, UpdatedById},
     store::{
         crud::Read,
         postgres::{DependencyContext, DependencyStatus},
+        query::Filter,
         AsClient, DataTypeStore, InsertionError, PostgresStore, QueryError, Record, UpdateError,
     },
     subgraph::{edges::GraphResolveDepths, query::StructuralQuery, Subgraph},
 };
 
-impl<C: AsClient> PostgresStore<C> {
-    /// Internal method to read a [`DataTypeWithMetadata`] into a [`DependencyContext`].
-    ///
-    /// This is used to recursively resolve a type, so the result can be reused.
+#[async_trait]
+impl<C: AsClient> Read<DataTypeWithMetadata> for PostgresStore<C> {
+    async fn read(
+        &self,
+        filter: &Filter<DataTypeWithMetadata>,
+    ) -> Result<Vec<DataTypeWithMetadata>, QueryError> {
+        self.read_ontology_type(filter).await
+    }
+
     #[tracing::instrument(level = "trace", skip(self, dependency_context, subgraph))]
-    pub(crate) async fn traverse_data_type(
+    async fn traverse(
         &self,
         data_type_id: &OntologyTypeEditionId,
         dependency_context: &mut DependencyContext,
@@ -98,7 +104,8 @@ impl<C: AsClient> DataTypeStore for PostgresStore<C> {
             // Insert the vertex into the subgraph to avoid another lookup when traversing it
             subgraph.insert(data_type);
 
-            self.traverse_data_type(
+            Read::<DataTypeWithMetadata>::traverse(
+                self,
                 &edition_id,
                 &mut dependency_context,
                 &mut subgraph,
@@ -126,8 +133,19 @@ impl<C: AsClient> DataTypeStore for PostgresStore<C> {
                 .change_context(UpdateError)?,
         );
 
+        // TODO - address potential race condition
+        //  https://app.asana.com/0/1202805690238892/1203201674100967/f
+        let previous_owned_by_id = Read::<DataTypeWithMetadata>::read_one(
+            &transaction,
+            &Filter::for_base_uri(data_type.id().base_uri()),
+        )
+        .await
+        .change_context(UpdateError)?
+        .metadata()
+        .owned_by_id();
+
         let (_, metadata) = transaction
-            .update::<DataType>(data_type, updated_by_id)
+            .update::<DataType>(data_type, previous_owned_by_id, updated_by_id)
             .await?;
 
         transaction

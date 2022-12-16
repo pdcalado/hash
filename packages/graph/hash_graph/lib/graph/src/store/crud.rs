@@ -9,7 +9,10 @@
 use async_trait::async_trait;
 use error_stack::{ensure, Report, Result};
 
-use crate::store::{query::Filter, QueryError, Record};
+use crate::{
+    store::{postgres::DependencyContext, query::Filter, QueryError, Record},
+    subgraph::{edges::GraphResolveDepths, Subgraph},
+};
 
 /// Read access to a [`Store`].
 ///
@@ -41,6 +44,14 @@ pub trait Read<R: Record + Send>: Sync {
             )
         })
     }
+
+    async fn traverse(
+        &self,
+        edition_id: &R::EditionId,
+        dependency_context: &mut DependencyContext,
+        subgraph: &mut Subgraph,
+        resolve_depth: GraphResolveDepths,
+    ) -> Result<(), QueryError>;
 }
 
 // TODO: Add remaining CRUD traits (but probably don't implement the `D`-part)
