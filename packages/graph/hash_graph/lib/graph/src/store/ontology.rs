@@ -35,10 +35,13 @@ pub trait DataTypeStore: crud::Read<DataTypeWithMetadata> {
     /// # Errors
     ///
     /// - if the requested [`DataType`] doesn't exist.
+    #[tracing::instrument(level = "info", skip(self, query))]
     async fn get_data_type(
         &self,
         query: &StructuralQuery<DataTypeWithMetadata>,
-    ) -> Result<Subgraph, QueryError>;
+    ) -> Result<Subgraph, QueryError> {
+        self.read_by_query(query).await
+    }
 
     /// Update the definition of an existing [`DataType`].
     ///
@@ -75,10 +78,13 @@ pub trait PropertyTypeStore: crud::Read<PropertyTypeWithMetadata> {
     /// # Errors
     ///
     /// - if the requested [`PropertyType`] doesn't exist.
+    #[tracing::instrument(level = "info", skip(self, query))]
     async fn get_property_type(
         &self,
         query: &StructuralQuery<PropertyTypeWithMetadata>,
-    ) -> Result<Subgraph, QueryError>;
+    ) -> Result<Subgraph, QueryError> {
+        self.read_by_query(query).await
+    }
 
     /// Update the definition of an existing [`PropertyType`].
     ///
@@ -115,10 +121,13 @@ pub trait EntityTypeStore: crud::Read<EntityTypeWithMetadata> {
     /// # Errors
     ///
     /// - if the requested [`EntityType`] doesn't exist.
+    #[tracing::instrument(level = "info", skip(self, query))]
     async fn get_entity_type(
         &self,
         query: &StructuralQuery<EntityTypeWithMetadata>,
-    ) -> Result<Subgraph, QueryError>;
+    ) -> Result<Subgraph, QueryError> {
+        self.read_by_query(query).await
+    }
 
     /// Update the definition of an existing [`EntityType`].
     ///

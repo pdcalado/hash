@@ -11,7 +11,7 @@ use error_stack::{ensure, Report, Result};
 
 use crate::{
     store::{postgres::DependencyContext, query::Filter, QueryError, Record},
-    subgraph::{edges::GraphResolveDepths, Subgraph},
+    subgraph::{edges::GraphResolveDepths, query::StructuralQuery, Subgraph},
 };
 
 /// Read access to a [`Store`].
@@ -20,7 +20,7 @@ use crate::{
 // TODO: Use queries, which are passed to the query-endpoint
 //   see https://app.asana.com/0/1202805690238892/1202979057056097/f
 #[async_trait]
-pub trait Read<R: Record + Send>: Sync {
+pub trait Read<R: Record + Send + Sync>: Sync {
     // TODO: Return a stream of `R` instead
     //   see https://app.asana.com/0/1202805690238892/1202923536131158/f
     /// Returns a value from the [`Store`] specified by the passed `query`.
@@ -52,6 +52,34 @@ pub trait Read<R: Record + Send>: Sync {
         subgraph: &mut Subgraph,
         resolve_depth: GraphResolveDepths,
     ) -> Result<(), QueryError>;
+
+    async fn read_by_query(&self, query: &StructuralQuery<R>) -> Result<Subgraph, QueryError> {
+        let StructuralQuery {
+            ref filter,
+            graph_resolve_depths,
+        } = *query;
+
+        let mut subgraph = Subgraph::new(graph_resolve_depths);
+        let mut dependency_context = DependencyContext::default();
+
+        for record in self.read(filter).await? {
+            let edition_id = record.edition_id().clone();
+            // Insert the vertex into the subgraph to avoid another lookup when traversing it
+            subgraph.insert(record);
+
+            self.traverse(
+                &edition_id,
+                &mut dependency_context,
+                &mut subgraph,
+                graph_resolve_depths,
+            )
+            .await?;
+
+            subgraph.roots.insert(edition_id.into());
+        }
+
+        Ok(subgraph)
+    }
 }
 
 // TODO: Add remaining CRUD traits (but probably don't implement the `D`-part)

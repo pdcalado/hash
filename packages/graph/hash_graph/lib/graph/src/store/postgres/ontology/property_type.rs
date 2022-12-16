@@ -14,15 +14,13 @@ use crate::{
         crud::Read,
         postgres::{DependencyContext, DependencyStatus},
         query::Filter,
-        AsClient, InsertionError, PostgresStore, PropertyTypeStore, QueryError, Record,
-        UpdateError,
+        AsClient, InsertionError, PostgresStore, PropertyTypeStore, QueryError, UpdateError,
     },
     subgraph::{
         edges::{
             Edge, GraphResolveDepths, OntologyEdgeKind, OntologyOutwardEdges,
             OutgoingEdgeResolveDepth, OutwardEdge,
         },
-        query::StructuralQuery,
         Subgraph,
     },
 };
@@ -187,41 +185,6 @@ impl<C: AsClient> PropertyTypeStore for PostgresStore<C> {
         Ok(metadata)
     }
 
-    #[tracing::instrument(level = "info", skip(self))]
-    async fn get_property_type(
-        &self,
-        query: &StructuralQuery<PropertyTypeWithMetadata>,
-    ) -> Result<Subgraph, QueryError> {
-        let StructuralQuery {
-            ref filter,
-            graph_resolve_depths,
-        } = *query;
-
-        let mut subgraph = Subgraph::new(graph_resolve_depths);
-        let mut dependency_context = DependencyContext::default();
-
-        for property_type in Read::<PropertyTypeWithMetadata>::read(self, filter).await? {
-            let edition_id = property_type.edition_id().clone();
-
-            // Insert the vertex into the subgraph to avoid another lookup when traversing it
-            subgraph.insert(property_type);
-
-            Read::<PropertyTypeWithMetadata>::traverse(
-                self,
-                &edition_id,
-                &mut dependency_context,
-                &mut subgraph,
-                graph_resolve_depths,
-            )
-            .await?;
-
-            subgraph.roots.insert(edition_id.into());
-        }
-
-        Ok(subgraph)
-    }
-
-    #[tracing::instrument(level = "info", skip(self, property_type))]
     async fn update_property_type(
         &mut self,
         property_type: PropertyType,

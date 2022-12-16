@@ -11,9 +11,9 @@ use crate::{
         crud::Read,
         postgres::{DependencyContext, DependencyStatus},
         query::Filter,
-        AsClient, DataTypeStore, InsertionError, PostgresStore, QueryError, Record, UpdateError,
+        AsClient, DataTypeStore, InsertionError, PostgresStore, QueryError, UpdateError,
     },
-    subgraph::{edges::GraphResolveDepths, query::StructuralQuery, Subgraph},
+    subgraph::{edges::GraphResolveDepths, Subgraph},
 };
 
 #[async_trait]
@@ -85,41 +85,6 @@ impl<C: AsClient> DataTypeStore for PostgresStore<C> {
         Ok(metadata)
     }
 
-    #[tracing::instrument(level = "info", skip(self))]
-    async fn get_data_type(
-        &self,
-        query: &StructuralQuery<DataTypeWithMetadata>,
-    ) -> Result<Subgraph, QueryError> {
-        let StructuralQuery {
-            ref filter,
-            graph_resolve_depths,
-        } = *query;
-
-        let mut subgraph = Subgraph::new(graph_resolve_depths);
-        let mut dependency_context = DependencyContext::default();
-
-        for data_type in Read::<DataTypeWithMetadata>::read(self, filter).await? {
-            let edition_id = data_type.edition_id().clone();
-
-            // Insert the vertex into the subgraph to avoid another lookup when traversing it
-            subgraph.insert(data_type);
-
-            Read::<DataTypeWithMetadata>::traverse(
-                self,
-                &edition_id,
-                &mut dependency_context,
-                &mut subgraph,
-                graph_resolve_depths,
-            )
-            .await?;
-
-            subgraph.roots.insert(edition_id.into());
-        }
-
-        Ok(subgraph)
-    }
-
-    #[tracing::instrument(level = "info", skip(self, data_type))]
     async fn update_data_type(
         &mut self,
         data_type: DataType,

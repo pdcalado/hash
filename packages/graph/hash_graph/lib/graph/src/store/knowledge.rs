@@ -78,7 +78,10 @@ pub trait EntityStore: crud::Read<Entity> {
     /// # Errors
     ///
     /// - if the requested [`Entity`] doesn't exist
-    async fn get_entity(&self, query: &StructuralQuery<Entity>) -> Result<Subgraph, QueryError>;
+    #[tracing::instrument(level = "info", skip(self, query))]
+    async fn get_entity(&self, query: &StructuralQuery<Entity>) -> Result<Subgraph, QueryError> {
+        self.read_by_query(query).await
+    }
 
     /// Update an existing [`Entity`].
     ///

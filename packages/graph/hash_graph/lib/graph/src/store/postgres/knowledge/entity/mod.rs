@@ -11,15 +11,12 @@ use crate::{
         knowledge::{EntityEditionId, EntityId, EntityRecordId, EntityVersion},
         DecisionTimespan, DecisionTimestamp, TransactionTimespan,
     },
-    knowledge::{Entity, EntityLinkOrder, EntityMetadata, EntityProperties, EntityUuid, LinkData},
+    knowledge::{EntityLinkOrder, EntityMetadata, EntityProperties, EntityUuid, LinkData},
     provenance::{OwnedById, ProvenanceMetadata, UpdatedById},
     store::{
-        crud::Read,
         error::{EntityDoesNotExist, RaceConditionOnUpdate},
-        postgres::DependencyContext,
-        AsClient, EntityStore, InsertionError, PostgresStore, QueryError, Record, UpdateError,
+        AsClient, EntityStore, InsertionError, PostgresStore, UpdateError,
     },
-    subgraph::{query::StructuralQuery, Subgraph},
 };
 
 #[async_trait]
@@ -217,37 +214,6 @@ impl<C: AsClient> EntityStore for PostgresStore<C> {
             .collect())
     }
 
-    #[tracing::instrument(level = "info", skip(self))]
-    async fn get_entity(&self, query: &StructuralQuery<Entity>) -> Result<Subgraph, QueryError> {
-        let StructuralQuery {
-            ref filter,
-            graph_resolve_depths,
-        } = *query;
-
-        let mut subgraph = Subgraph::new(graph_resolve_depths);
-        let mut dependency_context = DependencyContext::default();
-
-        for entity in Read::<Entity>::read(self, filter).await? {
-            let edition_id = *entity.edition_id();
-            // Insert the vertex into the subgraph to avoid another lookup when traversing it
-            subgraph.insert(entity);
-
-            Read::<Entity>::traverse(
-                self,
-                &edition_id,
-                &mut dependency_context,
-                &mut subgraph,
-                graph_resolve_depths,
-            )
-            .await?;
-
-            subgraph.roots.insert(edition_id.into());
-        }
-
-        Ok(subgraph)
-    }
-
-    #[tracing::instrument(level = "info", skip(self, properties))]
     async fn update_entity(
         &mut self,
         entity_id: EntityId,

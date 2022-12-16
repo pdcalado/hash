@@ -78,7 +78,7 @@ async fn read_from_store<'pool, 'p, P, R>(
 ) -> Result<Vec<R>, StatusCode>
 where
     P: StorePool<Store<'pool>: Read<R>>,
-    R: Record<QueryPath<'p>: Sync + Debug> + Send,
+    R: Record<QueryPath<'p>: Sync + Debug> + Send + Sync,
 {
     pool.acquire()
         .map_err(|report| {
