@@ -735,6 +735,7 @@ dependencies = [
  "error-stack",
  "futures",
  "graph-test-data",
+ "hash-status",
  "hyper",
  "include_dir",
  "opentelemetry",
@@ -804,6 +805,15 @@ dependencies = [
  "tracing",
  "type-system",
  "uuid",
+]
+
+[[package]]
+name = "hash-status"
+version = "0.0.0"
+dependencies = [
+ "error-stack",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

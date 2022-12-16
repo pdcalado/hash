@@ -1,6 +1,8 @@
 // Attribution: *Heavily* inspired by the Google Cloud API Error Model
 //  https://cloud.google.com/apis/design/errors
 
+use std::fmt::{Display, Formatter};
+
 use serde::{Deserialize, Serialize};
 
 mod http_compat;
@@ -10,7 +12,7 @@ mod http_compat;
 /// Sometimes multiple status codes may apply. Services should return the most specific status code
 /// that applies. For example, prefer [`OutOfRange`] over [`FailedPrecondition`] if both codes
 /// apply. Similarly prefer [`NotFound`] or [`AlreadyExists`] over [`FailedPrecondition`].
-#[derive(Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum StatusCode {
     /// Not an error; returned on success.
@@ -153,4 +155,10 @@ pub enum StatusCode {
     ///
     /// HTTP Mapping: 500 Internal Server Error
     DataLoss,
+}
+
+impl Display for StatusCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(serde_json::to_string(self))
+    }
 }
