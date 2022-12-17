@@ -421,6 +421,7 @@ pub enum Relation {
     DataTypeIds,
     PropertyTypeIds,
     EntityTypeIds,
+    DataTypePropertyTypeReferences,
     PropertyTypeDataTypeReferences,
     PropertyTypePropertyTypeReferences,
     EntityTypePropertyTypeReferences,
@@ -434,6 +435,7 @@ pub enum Relation {
 }
 
 impl Relation {
+    #[expect(clippy::too_many_lines)]
     pub const fn joins(self) -> &'static [(Column<'static>, Column<'static>)] {
         match self {
             Self::DataTypeIds => &[(
@@ -448,6 +450,20 @@ impl Relation {
                 Column::EntityTypes(EntityTypes::VersionId),
                 Column::TypeIds(TypeIds::VersionId),
             )],
+            Self::DataTypePropertyTypeReferences => &[
+                (
+                    Column::DataTypes(DataTypes::VersionId),
+                    Column::PropertyTypeDataTypeReferences(
+                        PropertyTypeDataTypeReferences::TargetDataTypeVersionId,
+                    ),
+                ),
+                (
+                    Column::PropertyTypeDataTypeReferences(
+                        PropertyTypeDataTypeReferences::SourcePropertyTypeVersionId,
+                    ),
+                    Column::PropertyTypes(PropertyTypes::VersionId),
+                ),
+            ],
             Self::PropertyTypeDataTypeReferences => &[
                 (
                     Column::PropertyTypes(PropertyTypes::VersionId),

@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, iter::once};
 
 use crate::{
     ontology::{DataTypeQueryPath, DataTypeWithMetadata},
@@ -20,11 +20,14 @@ impl PostgresQueryPath for DataTypeQueryPath {
             Self::BaseUri | Self::Version => {
                 vec![Relation::DataTypeIds]
             }
+            Self::ConstrainedByProperties(path) => once(Relation::DataTypePropertyTypeReferences)
+                .chain(path.relations())
+                .collect(),
             _ => vec![],
         }
     }
 
-    fn terminating_column(&self) -> Column<'static> {
+    fn terminating_column(&self) -> Column {
         match self {
             Self::BaseUri => Column::TypeIds(TypeIds::BaseUri),
             Self::Version => Column::TypeIds(TypeIds::Version),
@@ -44,6 +47,7 @@ impl PostgresQueryPath for DataTypeQueryPath {
             Self::Description => Column::DataTypes(DataTypes::Schema(Some(JsonField::Text(
                 &Cow::Borrowed("description"),
             )))),
+            Self::ConstrainedByProperties(path) => path.terminating_column(),
         }
     }
 }

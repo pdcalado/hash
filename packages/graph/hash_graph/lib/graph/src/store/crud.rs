@@ -11,7 +11,14 @@ use error_stack::{ensure, Report, Result};
 
 use crate::{
     store::{postgres::DependencyContext, query::Filter, QueryError, Record},
-    subgraph::{edges::GraphResolveDepths, query::StructuralQuery, Subgraph},
+    subgraph::{
+        edges::{
+            resolve_depth::{EdgeKind, ResolveDepth},
+            GraphResolveDepths,
+        },
+        query::StructuralQuery,
+        Subgraph,
+    },
 };
 
 /// Read access to a [`Store`].
@@ -45,14 +52,6 @@ pub trait Read<R: Record + Send + Sync>: Sync {
         })
     }
 
-    async fn traverse(
-        &self,
-        edition_id: &R::EditionId,
-        dependency_context: &mut DependencyContext,
-        subgraph: &mut Subgraph,
-        resolve_depth: GraphResolveDepths,
-    ) -> Result<(), QueryError>;
-
     async fn read_by_query(&self, query: &StructuralQuery<R>) -> Result<Subgraph, QueryError> {
         let StructuralQuery {
             ref filter,
@@ -79,6 +78,69 @@ pub trait Read<R: Record + Send + Sync>: Sync {
         }
 
         Ok(subgraph)
+    }
+
+    async fn traverse(
+        &self,
+        edition_id: &R::EditionId,
+        dependency_context: &mut DependencyContext,
+        subgraph: &mut Subgraph,
+        resolve_depth: GraphResolveDepths,
+    ) -> Result<(), QueryError>;
+
+    async fn traverse_edge_by_filter<'a, E: ResolveDepth>(
+        &self,
+        subgraph: &mut Subgraph,
+        edition_id: &'a <E::EdgeKind as EdgeKind>::BaseEditionId,
+        dependency_context: &mut DependencyContext,
+        mut resolve_depth: GraphResolveDepths,
+        filter: impl FnOnce(&'a <E::EdgeKind as EdgeKind>::BaseEditionId) -> Filter<'a, R> + Send,
+    ) -> Result<(), QueryError>
+    where
+        E::EdgeKind: EdgeKind<TargetEditionId = R::EditionId>,
+    {
+        if !E::update_resolve_depth(&mut resolve_depth) {
+            return Ok(());
+        }
+
+        self.traverse_edge_by_records::<E>(
+            subgraph,
+            edition_id,
+            dependency_context,
+            resolve_depth,
+            self.read(&filter(edition_id)).await?,
+        )
+        .await
+    }
+
+    async fn traverse_edge_by_records<'a, E: ResolveDepth>(
+        &self,
+        subgraph: &mut Subgraph,
+        edition_id: &'a <E::EdgeKind as EdgeKind>::BaseEditionId,
+        dependency_context: &mut DependencyContext,
+        resolve_depth: GraphResolveDepths,
+        records: impl IntoIterator<Item = R, IntoIter: Send> + Send,
+    ) -> Result<(), QueryError>
+    where
+        E::EdgeKind: EdgeKind<TargetEditionId = R::EditionId>,
+    {
+        for record in records {
+            let endpoint_edition_id = record.edition_id().clone();
+            subgraph.insert(record);
+
+            self.traverse(
+                &endpoint_edition_id,
+                dependency_context,
+                subgraph,
+                resolve_depth,
+            )
+            .await?;
+
+            subgraph
+                .edges
+                .insert(E::create_edge(edition_id.clone(), endpoint_edition_id));
+        }
+        Ok(())
     }
 }
 

@@ -17,6 +17,7 @@ use crate::{
         ontology::OntologyTypeEditionId,
     },
     knowledge::{Entity, EntityQueryPath, EntityUuid},
+    ontology::{DataTypeQueryPath, DataTypeWithMetadata, PropertyTypeQueryPath},
     store::{
         query::{OntologyQueryPath, ParameterType, QueryPath},
         Record,
@@ -100,6 +101,38 @@ where
         Self::All(vec![
             Self::for_base_uri(ontology_type_edition_id.base_id()),
             Self::for_version(ontology_type_edition_id.version().inner()),
+        ])
+    }
+}
+
+impl<'p> Filter<'p, DataTypeWithMetadata> {
+    /// Creates a `Filter` to search for a specific ontology type of kind `R`, identified by its
+    /// [`OntologyTypeEditionId`].
+    #[must_use]
+    pub fn for_data_types_constrained_by_property_type(
+        property_type_edition_id: &'p OntologyTypeEditionId,
+    ) -> Self {
+        Self::All(vec![
+            Self::Equal(
+                Some(FilterExpression::Path(
+                    DataTypeQueryPath::ConstrainedByProperties(Box::new(
+                        PropertyTypeQueryPath::BaseUri,
+                    )),
+                )),
+                Some(FilterExpression::Parameter(Parameter::Text(Cow::Borrowed(
+                    property_type_edition_id.base_id().as_str(),
+                )))),
+            ),
+            Self::Equal(
+                Some(FilterExpression::Path(
+                    DataTypeQueryPath::ConstrainedByProperties(Box::new(
+                        PropertyTypeQueryPath::Version,
+                    )),
+                )),
+                Some(FilterExpression::Parameter(Parameter::SignedInteger(
+                    property_type_edition_id.version().inner().into(),
+                ))),
+            ),
         ])
     }
 }

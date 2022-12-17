@@ -6,6 +6,7 @@ mod edge;
 mod kind;
 
 pub use self::{
+    kind::resolve_depth,
     edge::{KnowledgeGraphOutwardEdges, OntologyOutwardEdges, OutwardEdge},
     kind::{
         EdgeResolveDepths, GraphResolveDepths, KnowledgeGraphEdgeKind, OntologyEdgeKind,

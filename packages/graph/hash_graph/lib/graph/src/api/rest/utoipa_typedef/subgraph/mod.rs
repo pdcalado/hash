@@ -5,7 +5,7 @@ use serde::Serialize;
 use utoipa::ToSchema;
 
 pub use self::{
-    edges::{Edges, KnowledgeGraphRootedEdges, OntologyRootedEdges},
+    edges::{Edges, KnowledgeGraphOutwardEdges, KnowledgeGraphRootedEdges, OntologyRootedEdges},
     vertices::{
         KnowledgeGraphVertex, KnowledgeGraphVertices, OntologyVertex, OntologyVertices, Vertex,
         Vertices,

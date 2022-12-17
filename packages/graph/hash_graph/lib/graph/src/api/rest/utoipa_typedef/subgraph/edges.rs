@@ -9,11 +9,30 @@ use utoipa::{
 
 use crate::{
     identifier::{
-        knowledge::{EntityId, EntityVersion},
-        ontology::OntologyTypeVersion,
+        knowledge::{EntityId, EntityIdAndTimestamp, EntityVersion},
+        ontology::{OntologyTypeEditionId, OntologyTypeVersion},
     },
-    subgraph::edges::{KnowledgeGraphOutwardEdges, OntologyOutwardEdges},
+    subgraph::edges::{KnowledgeGraphEdgeKind, OntologyOutwardEdges, OutwardEdge, SharedEdgeKind},
 };
+
+#[derive(Debug, Hash, PartialEq, Eq, Serialize)]
+#[serde(untagged)]
+pub enum KnowledgeGraphOutwardEdges {
+    ToKnowledgeGraph(OutwardEdge<KnowledgeGraphEdgeKind, EntityIdAndTimestamp>),
+    ToOntology(OutwardEdge<SharedEdgeKind, OntologyTypeEditionId>),
+}
+
+// WARNING: This MUST be kept up to date with the enum variants.
+//   We have to do this because utoipa doesn't understand serde untagged:
+//   https://github.com/juhaku/utoipa/issues/320
+impl ToSchema for KnowledgeGraphOutwardEdges {
+    fn schema() -> Schema {
+        OneOfBuilder::new()
+            .item(<OutwardEdge<KnowledgeGraphEdgeKind, EntityIdAndTimestamp>>::schema())
+            .item(<OutwardEdge<SharedEdgeKind, OntologyTypeEditionId>>::schema())
+            .into()
+    }
+}
 
 #[derive(Default, Debug, Serialize, ToSchema)]
 #[serde(transparent)]
@@ -56,7 +75,21 @@ impl From<crate::subgraph::edges::Edges> for Edges {
             knowledge_graph: KnowledgeGraphRootedEdges(edges.knowledge_graph.into_iter().fold(
                 HashMap::new(),
                 |mut map, (id, edges)| {
-                    let edges = edges.into_iter().collect();
+                    let edges = edges.into_iter().map(|edge| {
+                        match edge {
+                            crate::subgraph::edges::KnowledgeGraphOutwardEdges::ToOntology(edge) => KnowledgeGraphOutwardEdges::ToOntology(edge),
+                            crate::subgraph::edges::KnowledgeGraphOutwardEdges::ToKnowledgeGraph(edge) => {
+                                KnowledgeGraphOutwardEdges::ToKnowledgeGraph(OutwardEdge {
+                                    kind: edge.kind,
+                                    reversed: edge.reversed,
+                                    right_endpoint: EntityIdAndTimestamp::new(
+                                         edge.right_endpoint.base_id(),
+                                         edge.right_endpoint.version().transaction_time().as_start_bound_timestamp())
+
+                                })
+                            }
+                        }
+                    }).collect();
                     match map.entry(id.base_id()) {
                         Entry::Occupied(entry) => {
                             entry.into_mut().insert(id.version(), edges);

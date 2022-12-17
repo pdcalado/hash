@@ -6,7 +6,10 @@ use serde::{
 };
 use utoipa::ToSchema;
 
-use crate::store::query::{OntologyQueryPath, ParameterType, QueryPath};
+use crate::{
+    ontology::PropertyTypeQueryPath,
+    store::query::{OntologyQueryPath, ParameterType, QueryPath},
+};
 
 /// A path to a [`DataType`] field.
 ///
@@ -152,6 +155,7 @@ pub enum DataTypeQueryPath {
     VersionId,
     /// Only used internally and not available for deserialization.
     Schema,
+    ConstrainedByProperties(Box<PropertyTypeQueryPath>),
 }
 
 impl OntologyQueryPath for DataTypeQueryPath {
@@ -189,6 +193,7 @@ impl QueryPath for DataTypeQueryPath {
             Self::VersionedUri => ParameterType::VersionedUri,
             Self::Version => ParameterType::UnsignedInteger,
             Self::Description | Self::Title | Self::Type => ParameterType::Text,
+            Self::ConstrainedByProperties(path) => path.expected_type(),
         }
     }
 }
@@ -206,6 +211,7 @@ impl fmt::Display for DataTypeQueryPath {
             Self::Title => fmt.write_str("title"),
             Self::Description => fmt.write_str("description"),
             Self::Type => fmt.write_str("type"),
+            Self::ConstrainedByProperties(path) => write!(fmt, "constrainedByProperties.{path}"),
         }
     }
 }

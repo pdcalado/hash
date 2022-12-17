@@ -2,10 +2,7 @@ use serde::Serialize;
 use utoipa::{openapi, ToSchema};
 
 use crate::{
-    identifier::{
-        knowledge::{EntityEditionId, EntityIdAndTimestamp},
-        ontology::OntologyTypeEditionId,
-    },
+    identifier::{knowledge::EntityEditionId, ontology::OntologyTypeEditionId},
     subgraph::edges::{KnowledgeGraphEdgeKind, OntologyEdgeKind, SharedEdgeKind},
 };
 
@@ -60,21 +57,8 @@ impl ToSchema for OntologyOutwardEdges {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Serialize)]
-#[serde(untagged)]
+#[derive(Debug, Hash, PartialEq, Eq)]
 pub enum KnowledgeGraphOutwardEdges {
-    ToKnowledgeGraph(OutwardEdge<KnowledgeGraphEdgeKind, EntityIdAndTimestamp>),
+    ToKnowledgeGraph(OutwardEdge<KnowledgeGraphEdgeKind, EntityEditionId>),
     ToOntology(OutwardEdge<SharedEdgeKind, OntologyTypeEditionId>),
-}
-
-// WARNING: This MUST be kept up to date with the enum variants.
-//   We have to do this because utoipa doesn't understand serde untagged:
-//   https://github.com/juhaku/utoipa/issues/320
-impl ToSchema for KnowledgeGraphOutwardEdges {
-    fn schema() -> openapi::Schema {
-        openapi::OneOfBuilder::new()
-            .item(<OutwardEdge<KnowledgeGraphEdgeKind, EntityIdAndTimestamp>>::schema())
-            .item(<OutwardEdge<SharedEdgeKind, OntologyTypeEditionId>>::schema())
-            .into()
-    }
 }
