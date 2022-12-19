@@ -1,5 +1,6 @@
 use std::collections::{hash_map::Entry, HashMap};
 
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 use type_system::uri::BaseUri;
 use utoipa::{
@@ -8,17 +9,14 @@ use utoipa::{
 };
 
 use crate::{
-    identifier::{
-        knowledge::{EntityId, EntityVersion},
-        ontology::OntologyTypeVersion,
-    },
+    identifier::{knowledge::EntityId, ontology::OntologyTypeVersion, time::Timestamp},
     subgraph::edges::{KnowledgeGraphOutwardEdges, OntologyOutwardEdges},
 };
 
 #[derive(Default, Debug, Serialize, ToSchema)]
 #[serde(transparent)]
 pub struct KnowledgeGraphRootedEdges(
-    pub HashMap<EntityId, HashMap<EntityVersion, Vec<KnowledgeGraphOutwardEdges>>>,
+    pub HashMap<EntityId, HashMap<DateTime<Utc>, Vec<KnowledgeGraphOutwardEdges>>>,
 );
 
 #[derive(Default, Debug, Serialize, ToSchema)]
@@ -59,10 +57,22 @@ impl From<crate::subgraph::edges::Edges> for Edges {
                     let edges = edges.into_iter().collect();
                     match map.entry(id.base_id()) {
                         Entry::Occupied(entry) => {
-                            entry.into_mut().insert(id.version(), edges);
+                            entry.into_mut().insert(
+                                id.version()
+                                    .transaction_time()
+                                    .as_start_bound_timestamp()
+                                    .into(),
+                                edges,
+                            );
                         }
                         Entry::Vacant(entry) => {
-                            entry.insert(HashMap::from([(id.version(), edges)]));
+                            entry.insert(HashMap::from([(
+                                id.version()
+                                    .transaction_time()
+                                    .as_start_bound_timestamp()
+                                    .into(),
+                                edges,
+                            )]));
                         }
                     }
                     map

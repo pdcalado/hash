@@ -697,7 +697,9 @@ mod tests {
                 account::AccountId,
                 knowledge::{EntityEditionId, EntityId, EntityRecordId, EntityVersion},
                 ontology::{OntologyTypeEditionId, OntologyTypeVersion},
-                DecisionTimespan, TransactionTimespan,
+                time::{
+                    DecisionTimespan, DecisionTimestamp, TransactionTimespan, TransactionTimestamp,
+                },
             },
             knowledge::EntityUuid,
             provenance::OwnedById,
@@ -887,14 +889,16 @@ mod tests {
                 ),
                 EntityRecordId::new(0),
                 EntityVersion::new(
-                    DecisionTimespan::from(DateTime::default()..),
-                    TransactionTimespan::from(DateTime::from(SystemTime::now())..),
+                    DecisionTimespan::new(DecisionTimestamp::from(DateTime::default())..),
+                    TransactionTimespan::new(
+                        TransactionTimestamp::from(DateTime::from(SystemTime::now()))..,
+                    ),
                 ),
             );
 
             let mut compiler = SelectCompiler::<Entity>::with_asterisk();
 
-            let filter = Filter::for_entity_by_edition_id(entity_edition_id);
+            let filter = Filter::for_entity_by_edition_id(&entity_edition_id);
             compiler.add_filter(&filter);
 
             test_compilation(
@@ -924,14 +928,16 @@ mod tests {
                 ),
                 EntityRecordId::new(0),
                 EntityVersion::new(
-                    DecisionTimespan::from(DateTime::default()..),
-                    TransactionTimespan::from(DateTime::from(SystemTime::now())..),
+                    DecisionTimespan::new(DecisionTimestamp::from(DateTime::default())..),
+                    TransactionTimespan::new(
+                        TransactionTimestamp::from(DateTime::from(SystemTime::now()))..,
+                    ),
                 ),
             );
 
             let mut compiler = SelectCompiler::<Entity>::with_asterisk();
 
-            let filter = Filter::for_outgoing_link_by_source_entity_edition_id(entity_edition_id);
+            let filter = Filter::for_outgoing_link_by_source_entity_edition_id(&entity_edition_id);
             compiler.add_filter(&filter);
 
             test_compilation(
@@ -964,14 +970,16 @@ mod tests {
                 ),
                 EntityRecordId::new(0),
                 EntityVersion::new(
-                    DecisionTimespan::from(DateTime::default()..),
-                    TransactionTimespan::from(DateTime::from(SystemTime::now())..),
+                    DecisionTimespan::new(DecisionTimestamp::from(DateTime::default())..),
+                    TransactionTimespan::new(
+                        TransactionTimestamp::from(DateTime::from(SystemTime::now()))..,
+                    ),
                 ),
             );
 
             let mut compiler = SelectCompiler::<Entity>::with_asterisk();
 
-            let filter = Filter::for_left_entity_by_entity_edition_id(entity_edition_id);
+            let filter = Filter::for_left_entity_by_entity_edition_id(&entity_edition_id);
             compiler.add_filter(&filter);
 
             test_compilation(
@@ -1004,14 +1012,16 @@ mod tests {
                 ),
                 EntityRecordId::new(0),
                 EntityVersion::new(
-                    DecisionTimespan::from(DateTime::default()..),
-                    TransactionTimespan::from(DateTime::from(SystemTime::now())..),
+                    DecisionTimespan::new(DecisionTimestamp::from(DateTime::default())..),
+                    TransactionTimespan::new(
+                        TransactionTimestamp::from(DateTime::from(SystemTime::now()))..,
+                    ),
                 ),
             );
 
             let mut compiler = SelectCompiler::<Entity>::with_asterisk();
 
-            let filter = Filter::for_right_entity_by_entity_edition_id(entity_edition_id);
+            let filter = Filter::for_right_entity_by_entity_edition_id(&entity_edition_id);
             compiler.add_filter(&filter);
 
             test_compilation(

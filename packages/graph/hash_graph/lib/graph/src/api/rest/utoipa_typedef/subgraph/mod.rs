@@ -11,7 +11,10 @@ pub use self::{
         Vertices,
     },
 };
-use crate::{identifier::GraphElementEditionId, subgraph::edges::GraphResolveDepths};
+use crate::{
+    identifier::GraphElementEditionId,
+    subgraph::{edges::GraphResolveDepths, query::TimeProjection},
+};
 
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
@@ -20,6 +23,8 @@ pub struct Subgraph {
     vertices: Vertices,
     edges: Edges,
     depths: GraphResolveDepths,
+    time_projection: TimeProjection,
+    resolved_time_projection: TimeProjection,
 }
 
 impl From<crate::subgraph::Subgraph> for Subgraph {
@@ -29,6 +34,8 @@ impl From<crate::subgraph::Subgraph> for Subgraph {
             vertices: subgraph.vertices.into(),
             edges: subgraph.edges.into(),
             depths: subgraph.depths,
+            time_projection: subgraph.time_projection,
+            resolved_time_projection: subgraph.resolved_time_projection,
         }
     }
 }

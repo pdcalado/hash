@@ -9,7 +9,7 @@ use graph::{
     store::{query::Filter, AccountStore, AsClient, EntityStore, PostgresStore},
     subgraph::{
         edges::{EdgeResolveDepths, GraphResolveDepths},
-        query::StructuralQuery,
+        query::{StructuralQuery, TimeProjection},
     },
 };
 use graph_test_data::{data_type, entity, entity_type, property_type};
@@ -161,6 +161,7 @@ pub fn bench_get_entity_by_id(
                 .get_entity(&StructuralQuery {
                     filter: Filter::for_entity_by_entity_id(entity_edition_id.base_id()),
                     graph_resolve_depths,
+                    time_projection: TimeProjection::default(),
                 })
                 .await
                 .expect("failed to read entity from store");

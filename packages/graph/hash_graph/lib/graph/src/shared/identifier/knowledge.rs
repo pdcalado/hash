@@ -9,9 +9,13 @@ use utoipa::{
 };
 
 use crate::{
-    identifier::{account::AccountId, DecisionTimespan, TransactionTimespan, TransactionTimestamp},
+    identifier::{
+        account::AccountId,
+        time::{TransactionTimespan, TransactionTimestamp},
+    },
     knowledge::EntityUuid,
     provenance::OwnedById,
+    shared::identifier::time::DecisionTimespan,
 };
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -83,24 +87,11 @@ impl ToSchema for EntityId {
     }
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EntityVersion {
     decision_time: DecisionTimespan,
     transaction_time: TransactionTimespan,
-}
-
-impl Serialize for EntityVersion {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        // TODO: Expose temporal versions to backend
-        //   see https://app.asana.com/0/0/1203444301722133/f
-        self.transaction_time()
-            .as_start_bound_timestamp()
-            .serialize(serializer)
-    }
 }
 
 impl ToSchema for EntityVersion {
@@ -125,13 +116,13 @@ impl EntityVersion {
     }
 
     #[must_use]
-    pub const fn decision_time(&self) -> DecisionTimespan {
-        self.decision_time
+    pub const fn decision_time(&self) -> &DecisionTimespan {
+        &self.decision_time
     }
 
     #[must_use]
-    pub const fn transaction_time(&self) -> TransactionTimespan {
-        self.transaction_time
+    pub const fn transaction_time(&self) -> &TransactionTimespan {
+        &self.transaction_time
     }
 }
 
@@ -152,7 +143,7 @@ impl EntityRecordId {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, ToSchema)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EntityEditionId {
     base_id: EntityId,
@@ -185,8 +176,8 @@ impl EntityEditionId {
     }
 
     #[must_use]
-    pub const fn version(&self) -> EntityVersion {
-        self.version
+    pub const fn version(&self) -> &EntityVersion {
+        &self.version
     }
 }
 

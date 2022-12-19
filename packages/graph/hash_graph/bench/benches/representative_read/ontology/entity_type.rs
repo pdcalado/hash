@@ -1,7 +1,10 @@
 use criterion::{BatchSize::SmallInput, Bencher};
 use graph::{
     store::{query::Filter, EntityTypeStore},
-    subgraph::{edges::GraphResolveDepths, query::StructuralQuery},
+    subgraph::{
+        edges::GraphResolveDepths,
+        query::{StructuralQuery, TimeProjection},
+    },
 };
 use rand::{prelude::IteratorRandom, thread_rng};
 use tokio::runtime::Runtime;
@@ -29,6 +32,7 @@ pub fn bench_get_entity_type_by_id(
                 .get_entity_type(&StructuralQuery {
                     filter: Filter::for_versioned_uri(&entity_type_id),
                     graph_resolve_depths: GraphResolveDepths::default(),
+                    time_projection: TimeProjection::default(),
                 })
                 .await
                 .expect("failed to read entity type from store");

@@ -201,8 +201,8 @@ impl EntityMetadata {
     }
 
     #[must_use]
-    pub const fn edition_id(&self) -> EntityEditionId {
-        self.edition_id
+    pub const fn edition_id(&self) -> &EntityEditionId {
+        &self.edition_id
     }
 
     #[must_use]
@@ -279,7 +279,7 @@ impl Record for Entity {
     }
 
     fn create_filter_for_edition_id(edition_id: &Self::EditionId) -> Filter<Self> {
-        Filter::for_entity_by_edition_id(*edition_id)
+        Filter::for_entity_by_edition_id(edition_id)
     }
 
     fn subgraph_entry<'s>(

@@ -41,7 +41,7 @@ use crate::{
 use crate::{
     identifier::{
         knowledge::{EntityId, EntityRecordId, EntityVersion},
-        DecisionTimespan, DecisionTimestamp, TransactionTimespan,
+        time::{DecisionTimespan, DecisionTimestamp, TransactionTimespan},
     },
     knowledge::{EntityProperties, LinkOrder},
 };
@@ -898,8 +898,8 @@ impl PostgresStore<Transaction<'_>> {
             .into_iter()
             .map(|row| {
                 EntityVersion::new(
-                    DecisionTimespan::new(row.get(0)),
-                    TransactionTimespan::new(row.get(1)),
+                    DecisionTimespan::from_date_time(row.get(0)),
+                    TransactionTimespan::from_date_time(row.get(1)),
                 )
             })
             .collect();

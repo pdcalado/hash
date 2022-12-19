@@ -1,9 +1,12 @@
 use std::fmt::{Debug, Formatter};
 
-use serde::Deserialize;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
+use uuid::timestamp;
 
 use crate::{
+    identifier::time::{DecisionTime, DecisionTimespan, Timespan, Timestamp, TransactionTime},
     knowledge::Entity,
     ontology::{DataTypeWithMetadata, EntityTypeWithMetadata, PropertyTypeWithMetadata},
     store::{query::Filter, Record},
@@ -162,6 +165,103 @@ pub struct StructuralQuery<'p, R: Record> {
     #[serde(bound = "'de: 'p, R::QueryPath<'p>: Deserialize<'de>")]
     pub filter: Filter<'p, R>,
     pub graph_resolve_depths: GraphResolveDepths,
+    #[serde(default)]
+    pub time_projection: TimeProjection,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct Projection<K, I> {
+    kernel: Kernel<K>,
+    image: Image<I>,
+}
+
+impl<K: Copy, I: Copy> TimeResolver for Projection<K, I> {
+    fn resolve(&self, now: DateTime<Utc>) -> Self {
+        Self {
+            kernel: self.kernel.resolve(now),
+            image: self.image.resolve(now),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+struct Kernel<A> {
+    #[serde(rename = "axis")]
+    tag: A,
+    timestamp: Option<Timestamp<A>>,
+}
+
+impl<A: Copy> TimeResolver for Kernel<A> {
+    fn resolve(&self, now: DateTime<Utc>) -> Self {
+        Self {
+            tag: self.tag,
+            timestamp: Some(self.timestamp.unwrap_or(Timestamp::from(now))),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+struct Image<A> {
+    #[serde(rename = "axis")]
+    tag: A,
+    #[serde(flatten)]
+    timespan: Timespan<A>,
+}
+
+impl<A: Copy> TimeResolver for Image<A> {
+    fn resolve(&self, now: DateTime<Utc>) -> Self {
+        Self {
+            tag: self.tag,
+            timespan: self.timespan.resolve(now),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+struct TaggedAxis<T, A> {
+    #[serde(rename = "axis")]
+    tag: T,
+    #[serde(flatten)]
+    axis: A,
+}
+
+pub type DecisionTimeProjection = Projection<TransactionTime, DecisionTime>;
+pub type TransactionTimeProjection = Projection<DecisionTime, TransactionTime>;
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+#[serde(untagged)]
+pub enum TimeProjection {
+    DecisionTime(DecisionTimeProjection),
+    TransactionTime(TransactionTimeProjection),
+}
+
+impl Default for TimeProjection {
+    fn default() -> Self {
+        Self::DecisionTime(DecisionTimeProjection {
+            kernel: Kernel {
+                tag: TransactionTime::Transaction,
+                timestamp: None,
+            },
+            image: Image {
+                tag: DecisionTime::Decision,
+                timespan: DecisionTimespan::new(..),
+            },
+        })
+    }
+}
+
+pub trait TimeResolver {
+    fn resolve(&self, now: DateTime<Utc>) -> Self;
+}
+
+impl TimeResolver for TimeProjection {
+    fn resolve(&self, now: DateTime<Utc>) -> Self {
+        match self {
+            Self::DecisionTime(projection) => Self::DecisionTime(projection.resolve(now)),
+            Self::TransactionTime(projection) => Self::TransactionTime(projection.resolve(now)),
+        }
+    }
 }
 
 // TODO: Derive traits when bounds are generated correctly
@@ -175,5 +275,38 @@ where
             .field("filter", &self.filter)
             .field("graph_resolve_depths", &self.graph_resolve_depths)
             .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use super::*;
+    use crate::identifier::time::{
+        DecisionTime, DecisionTimespan, DecisionTimestamp, TransactionTime, TransactionTimestamp,
+    };
+
+    #[test]
+    fn test_time_project_serialization() {
+        let timestamp_a =
+            DecisionTimestamp::from_str("2020-01-01T00:00:00Z").expect("invalid timestamp");
+        let timestamp_b =
+            DecisionTimestamp::from_str("2020-01-02T00:00:00Z").expect("invalid timestamp");
+        let timestamp_c =
+            TransactionTimestamp::from_str("2020-01-03T00:00:00Z").expect("invalid timestamp");
+
+        let projection = TimeProjection::DecisionTime(DecisionTimeProjection {
+            kernel: Kernel {
+                tag: TransactionTime::Transaction,
+                timestamp: Some(timestamp_c),
+            },
+            image: Image {
+                tag: DecisionTime::Decision,
+                timespan: DecisionTimespan::new(timestamp_a..),
+            },
+        });
+
+        println!("{}", serde_json::to_string_pretty(&projection).unwrap());
     }
 }

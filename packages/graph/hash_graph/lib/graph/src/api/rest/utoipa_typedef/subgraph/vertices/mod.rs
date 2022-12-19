@@ -1,5 +1,6 @@
 use std::collections::{hash_map::Entry, HashMap};
 
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 use type_system::uri::BaseUri;
 use utoipa::{
@@ -9,8 +10,9 @@ use utoipa::{
 
 pub use self::vertex::*;
 use crate::identifier::{
-    knowledge::{EntityId, EntityVersion},
+    knowledge::EntityId,
     ontology::OntologyTypeVersion,
+    time::{Timestamp, TransactionTimestamp},
 };
 
 pub mod vertex;
@@ -21,7 +23,7 @@ pub struct OntologyVertices(pub HashMap<BaseUri, HashMap<OntologyTypeVersion, On
 
 #[derive(Serialize, ToSchema)]
 #[serde(transparent)]
-pub struct KnowledgeGraphVertices(HashMap<EntityId, HashMap<EntityVersion, KnowledgeGraphVertex>>);
+pub struct KnowledgeGraphVertices(HashMap<EntityId, HashMap<DateTime<Utc>, KnowledgeGraphVertex>>);
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -66,13 +68,20 @@ impl From<crate::subgraph::vertices::Vertices> for Vertices {
                 |mut map, (id, vertex)| {
                     match map.entry(id.base_id()) {
                         Entry::Occupied(entry) => {
-                            entry
-                                .into_mut()
-                                .insert(id.version(), KnowledgeGraphVertex::Entity(vertex));
+                            entry.into_mut().insert(
+                                id.version()
+                                    .transaction_time()
+                                    .as_start_bound_timestamp()
+                                    .into(),
+                                KnowledgeGraphVertex::Entity(vertex),
+                            );
                         }
                         Entry::Vacant(entry) => {
                             entry.insert(HashMap::from([(
-                                id.version(),
+                                id.version()
+                                    .transaction_time()
+                                    .as_start_bound_timestamp()
+                                    .into(),
                                 KnowledgeGraphVertex::Entity(vertex),
                             )]));
                         }

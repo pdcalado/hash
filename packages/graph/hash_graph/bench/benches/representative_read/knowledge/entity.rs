@@ -7,7 +7,10 @@ use graph::{
         query::{Filter, FilterExpression, Parameter},
         EntityStore,
     },
-    subgraph::{edges::GraphResolveDepths, query::StructuralQuery},
+    subgraph::{
+        edges::GraphResolveDepths,
+        query::{StructuralQuery, TimeProjection},
+    },
 };
 use rand::{prelude::IteratorRandom, thread_rng};
 use tokio::runtime::Runtime;
@@ -30,6 +33,7 @@ pub fn bench_get_entity_by_id(
                 .get_entity(&StructuralQuery {
                     filter: Filter::for_latest_entity_by_entity_uuid(entity_uuid),
                     graph_resolve_depths: GraphResolveDepths::default(),
+                    time_projection: TimeProjection::default(),
                 })
                 .await
                 .expect("failed to read entity from store");
@@ -57,6 +61,7 @@ pub fn bench_get_entities_by_property(
                     )))),
                 ),
                 graph_resolve_depths,
+                time_projection: TimeProjection::default(),
             })
             .await
             .expect("failed to read entity from store");
@@ -84,6 +89,7 @@ pub fn bench_get_link_by_target_by_property(
                     )))),
                 ),
                 graph_resolve_depths,
+                time_projection: TimeProjection::default(),
             })
             .await
             .expect("failed to read entity from store");

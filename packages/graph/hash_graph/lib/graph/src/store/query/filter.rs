@@ -176,7 +176,7 @@ impl<'p> Filter<'p, Entity> {
     /// Creates a `Filter` to search for a specific entity edition, identified by its
     /// [`EntityEditionId`].
     #[must_use]
-    pub fn for_entity_by_edition_id(edition_id: EntityEditionId) -> Self {
+    pub fn for_entity_by_edition_id(edition_id: &EntityEditionId) -> Self {
         // TODO: Adjust structural queries for temporal versioning
         //   see https://app.asana.com/0/0/1203491211535116/f
         Self::All(vec![
@@ -203,7 +203,7 @@ impl<'p> Filter<'p, Entity> {
 
     /// TODO
     #[must_use]
-    pub fn for_outgoing_link_by_source_entity_edition_id(edition_id: EntityEditionId) -> Self {
+    pub fn for_outgoing_link_by_source_entity_edition_id(edition_id: &EntityEditionId) -> Self {
         // TODO: Adjust structural queries for temporal versioning
         //   see https://app.asana.com/0/0/1203491211535116/f
         Self::All(vec![
@@ -236,7 +236,7 @@ impl<'p> Filter<'p, Entity> {
 
     /// TODO
     #[must_use]
-    pub fn for_incoming_link_by_source_entity_edition_id(edition_id: EntityEditionId) -> Self {
+    pub fn for_incoming_link_by_source_entity_edition_id(edition_id: &EntityEditionId) -> Self {
         // TODO: Adjust structural queries for temporal versioning
         //   see https://app.asana.com/0/0/1203491211535116/f
         Self::All(vec![
@@ -269,7 +269,7 @@ impl<'p> Filter<'p, Entity> {
 
     /// TODO
     #[must_use]
-    pub fn for_left_entity_by_entity_edition_id(edition_id: EntityEditionId) -> Self {
+    pub fn for_left_entity_by_entity_edition_id(edition_id: &EntityEditionId) -> Self {
         // TODO: Adjust structural queries for temporal versioning
         //   see https://app.asana.com/0/0/1203491211535116/f
         Self::All(vec![
@@ -302,7 +302,7 @@ impl<'p> Filter<'p, Entity> {
 
     /// TODO
     #[must_use]
-    pub fn for_right_entity_by_entity_edition_id(edition_id: EntityEditionId) -> Self {
+    pub fn for_right_entity_by_entity_edition_id(edition_id: &EntityEditionId) -> Self {
         // TODO: Adjust structural queries for temporal versioning
         //   see https://app.asana.com/0/0/1203491211535116/f
         Self::All(vec![
@@ -575,7 +575,9 @@ mod tests {
             account::AccountId,
             knowledge::{EntityRecordId, EntityVersion},
             ontology::OntologyTypeVersion,
-            DecisionTimespan, TransactionTimespan,
+            time::{
+                DecisionTimespan, DecisionTimestamp, TransactionTimespan, TransactionTimestamp,
+            },
         },
         ontology::{DataTypeQueryPath, DataTypeWithMetadata},
         provenance::OwnedById,
@@ -761,8 +763,10 @@ mod tests {
             ),
             EntityRecordId::new(0),
             EntityVersion::new(
-                DecisionTimespan::from(DateTime::default()..),
-                TransactionTimespan::from(DateTime::from(SystemTime::now())..),
+                DecisionTimespan::new(DecisionTimestamp::from(DateTime::default())..),
+                TransactionTimespan::new(
+                    TransactionTimestamp::from(DateTime::from(SystemTime::now()))..,
+                ),
             ),
         );
 
@@ -784,7 +788,7 @@ mod tests {
         }};
 
         test_filter_representation(
-            &Filter::for_entity_by_edition_id(entity_edition_id),
+            &Filter::for_entity_by_edition_id(&entity_edition_id),
             &expected,
         );
     }
@@ -798,8 +802,10 @@ mod tests {
             ),
             EntityRecordId::new(0),
             EntityVersion::new(
-                DecisionTimespan::from(DateTime::default()..),
-                TransactionTimespan::from(DateTime::from(SystemTime::now())..),
+                DecisionTimespan::new(DecisionTimestamp::from(DateTime::default())..),
+                TransactionTimespan::new(
+                    TransactionTimestamp::from(DateTime::from(SystemTime::now()))..,
+                ),
             ),
         );
 
@@ -821,7 +827,7 @@ mod tests {
         }};
 
         test_filter_representation(
-            &Filter::for_outgoing_link_by_source_entity_edition_id(entity_edition_id),
+            &Filter::for_outgoing_link_by_source_entity_edition_id(&entity_edition_id),
             &expected,
         );
     }
@@ -835,8 +841,10 @@ mod tests {
             ),
             EntityRecordId::new(0),
             EntityVersion::new(
-                DecisionTimespan::from(DateTime::default()..),
-                TransactionTimespan::from(DateTime::from(SystemTime::now())..),
+                DecisionTimespan::new(DecisionTimestamp::from(DateTime::default())..),
+                TransactionTimespan::new(
+                    TransactionTimestamp::from(DateTime::from(SystemTime::now()))..,
+                ),
             ),
         );
 
@@ -858,7 +866,7 @@ mod tests {
         }};
 
         test_filter_representation(
-            &Filter::for_left_entity_by_entity_edition_id(entity_edition_id),
+            &Filter::for_left_entity_by_entity_edition_id(&entity_edition_id),
             &expected,
         );
     }
@@ -872,8 +880,10 @@ mod tests {
             ),
             EntityRecordId::new(0),
             EntityVersion::new(
-                DecisionTimespan::from(DateTime::default()..),
-                TransactionTimespan::from(DateTime::from(SystemTime::now())..),
+                DecisionTimespan::new(DecisionTimestamp::from(DateTime::default())..),
+                TransactionTimespan::new(
+                    TransactionTimestamp::from(DateTime::from(SystemTime::now()))..,
+                ),
             ),
         );
 
@@ -895,7 +905,7 @@ mod tests {
         }};
 
         test_filter_representation(
-            &Filter::for_right_entity_by_entity_edition_id(entity_edition_id),
+            &Filter::for_right_entity_by_entity_edition_id(&entity_edition_id),
             &expected,
         );
     }
