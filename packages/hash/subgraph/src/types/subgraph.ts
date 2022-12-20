@@ -10,7 +10,7 @@ import {
 } from "./element";
 import { Vertices } from "./vertex";
 import { Edges } from "./edge";
-import { EntityEditionId } from "./identifier";
+import { EntityIdAndTimestamp } from "./identifier";
 
 export type SubgraphRootTypes = {
   dataType: {
@@ -26,7 +26,7 @@ export type SubgraphRootTypes = {
     element: EntityTypeWithMetadata;
   };
   entity: {
-    editionId: EntityEditionId;
+    editionId: EntityIdAndTimestamp;
     element: Entity;
   };
 };

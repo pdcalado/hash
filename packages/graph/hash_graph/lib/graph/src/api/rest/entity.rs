@@ -14,8 +14,9 @@ use crate::{
         report_to_status_code,
         utoipa_typedef::{
             subgraph::{
-                Edges, KnowledgeGraphOutwardEdges, KnowledgeGraphRootedEdges, KnowledgeGraphVertex,
-                KnowledgeGraphVertices, OntologyRootedEdges, OntologyVertex, OntologyVertices,
+                Edges, GraphElementEditionId, KnowledgeGraphOutwardEdges,
+                KnowledgeGraphRootedEdges, KnowledgeGraphVertex, KnowledgeGraphVertices,
+                OntologyOutwardEdges, OntologyRootedEdges, OntologyVertex, OntologyVertices,
                 Subgraph, Vertex, Vertices,
             },
             EntityIdAndTimestamp,
@@ -24,7 +25,7 @@ use crate::{
     identifier::{
         knowledge::{EntityEditionId, EntityId, EntityRecordId, EntityVersion},
         time::TransactionTimestamp,
-        GraphElementEditionId, GraphElementId,
+        GraphElementId,
     },
     knowledge::{
         Entity, EntityLinkOrder, EntityMetadata, EntityProperties, EntityQueryToken, EntityUuid,
@@ -38,7 +39,7 @@ use crate::{
     subgraph::{
         edges::{
             EdgeResolveDepths, GraphResolveDepths, KnowledgeGraphEdgeKind, OntologyEdgeKind,
-            OntologyOutwardEdges, OutgoingEdgeResolveDepth, SharedEdgeKind,
+            OutgoingEdgeResolveDepth, SharedEdgeKind,
         },
         query::{EntityStructuralQuery, StructuralQuery},
     },

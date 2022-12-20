@@ -5,7 +5,7 @@ use crate::identifier::{knowledge::EntityId, time::TransactionTimestamp};
 
 pub mod subgraph;
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EntityIdAndTimestamp {
     pub base_id: EntityId,

@@ -13,9 +13,9 @@ use super::api_resource::RoutedResource;
 use crate::{
     api::rest::{
         report_to_status_code,
-        utoipa_typedef::subgraph::{Edges, Subgraph, Vertex, Vertices},
+        utoipa_typedef::subgraph::{Edges, GraphElementEditionId, Subgraph, Vertex, Vertices},
     },
-    identifier::{ontology::OntologyTypeEditionId, GraphElementEditionId, GraphElementId},
+    identifier::{ontology::OntologyTypeEditionId, GraphElementId},
     ontology::{
         domain_validator::{DomainValidator, ValidateOntologyType},
         patch_id_and_parse, OntologyElementMetadata, PropertyTypeQueryToken,

@@ -790,16 +790,10 @@ export interface GraphElementEditionIdOneOf1 {
   baseId: string;
   /**
    *
-   * @type {number}
+   * @type {string}
    * @memberof GraphElementEditionIdOneOf1
    */
-  recordId: number;
-  /**
-   *
-   * @type {EntityVersion}
-   * @memberof GraphElementEditionIdOneOf1
-   */
-  version: EntityVersion;
+  timestamp: string;
 }
 /**
  * @type GraphElementId
@@ -904,10 +898,10 @@ export interface KnowledgeGraphOutwardEdgesOneOf {
   reversed: boolean;
   /**
    *
-   * @type {KnowledgeGraphOutwardEdgesOneOfRightEndpoint}
+   * @type {GraphElementEditionIdOneOf1}
    * @memberof KnowledgeGraphOutwardEdgesOneOf
    */
-  rightEndpoint: KnowledgeGraphOutwardEdgesOneOfRightEndpoint;
+  rightEndpoint: GraphElementEditionIdOneOf1;
 }
 
 export const KnowledgeGraphOutwardEdgesOneOfKindEnum = {
@@ -951,25 +945,6 @@ export const KnowledgeGraphOutwardEdgesOneOf1KindEnum = {
 export type KnowledgeGraphOutwardEdgesOneOf1KindEnum =
   typeof KnowledgeGraphOutwardEdgesOneOf1KindEnum[keyof typeof KnowledgeGraphOutwardEdgesOneOf1KindEnum];
 
-/**
- *
- * @export
- * @interface KnowledgeGraphOutwardEdgesOneOfRightEndpoint
- */
-export interface KnowledgeGraphOutwardEdgesOneOfRightEndpoint {
-  /**
-   *
-   * @type {string}
-   * @memberof KnowledgeGraphOutwardEdgesOneOfRightEndpoint
-   */
-  baseId: string;
-  /**
-   *
-   * @type {string}
-   * @memberof KnowledgeGraphOutwardEdgesOneOfRightEndpoint
-   */
-  timestamp: string;
-}
 /**
  *
  * @export

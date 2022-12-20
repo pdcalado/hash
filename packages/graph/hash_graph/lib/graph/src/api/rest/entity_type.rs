@@ -14,10 +14,11 @@ use crate::{
         api_resource::RoutedResource,
         report_to_status_code,
         utoipa_typedef::subgraph::{
-            Edges, OntologyRootedEdges, OntologyVertices, Subgraph, Vertex, Vertices,
+            Edges, GraphElementEditionId, OntologyRootedEdges, OntologyVertices, Subgraph, Vertex,
+            Vertices,
         },
     },
-    identifier::{ontology::OntologyTypeEditionId, GraphElementEditionId, GraphElementId},
+    identifier::{ontology::OntologyTypeEditionId, GraphElementId},
     ontology::{
         domain_validator::{DomainValidator, ValidateOntologyType},
         patch_id_and_parse, EntityTypeQueryToken, EntityTypeWithMetadata, OntologyElementMetadata,
@@ -29,8 +30,8 @@ use crate::{
     },
     subgraph::{
         edges::{
-            EdgeResolveDepths, GraphResolveDepths, OntologyEdgeKind, OntologyOutwardEdges,
-            OutgoingEdgeResolveDepth, SharedEdgeKind,
+            EdgeResolveDepths, GraphResolveDepths, OntologyEdgeKind, OutgoingEdgeResolveDepth,
+            SharedEdgeKind,
         },
         query::{EntityTypeStructuralQuery, StructuralQuery},
     },
@@ -62,7 +63,6 @@ use crate::{
             Vertex,
             OntologyEdgeKind,
             SharedEdgeKind,
-            OntologyOutwardEdges,
             OntologyRootedEdges,
             Edges,
             GraphResolveDepths,

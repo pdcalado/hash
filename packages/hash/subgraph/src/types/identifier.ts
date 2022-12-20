@@ -81,7 +81,9 @@ export type EntityIdAndTimestamp = {
 
 export type { OntologyTypeEditionId };
 
-export type GraphElementEditionId = EntityEditionId | OntologyTypeEditionId;
+export type GraphElementEditionId =
+  | EntityIdAndTimestamp
+  | OntologyTypeEditionId;
 
 export const ontologyTypeEditionIdToVersionedUri = (
   ontologyTypeEditionId: OntologyTypeEditionId,
@@ -99,20 +101,6 @@ export const isEntityId = (entityId: string): entityId is EntityId => {
   );
 };
 
-export const isEntityEditionId = (
-  editionId: object,
-): editionId is EntityEditionId => {
-  return (
-    "baseId" in editionId &&
-    typeof editionId.baseId === "string" &&
-    isEntityId(editionId.baseId) &&
-    "recordId" in editionId &&
-    typeof editionId.recordId === "number" &&
-    Number.isInteger(editionId.recordId) &&
-    "version" in editionId
-  );
-};
-
 export const isOntologyTypeEditionId = (
   editionId: object,
 ): editionId is OntologyTypeEditionId => {
@@ -126,7 +114,7 @@ export const isOntologyTypeEditionId = (
   );
 };
 
-export const isEntityAndTimestamp = (
+export const isEntityIdAndTimestamp = (
   editionId: object,
 ): editionId is EntityIdAndTimestamp => {
   return (

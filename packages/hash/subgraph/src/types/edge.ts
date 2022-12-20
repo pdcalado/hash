@@ -1,12 +1,12 @@
 import { BaseUri } from "@blockprotocol/type-system";
 import {
-  isEntityEditionId,
   isOntologyTypeEditionId,
   EntityId,
   Timestamp,
   EntityEditionId,
   EntityIdAndTimestamp,
   OntologyTypeEditionId,
+  isEntityIdAndTimestamp,
 } from "./identifier";
 
 // -------------------------------- Edge Kinds --------------------------------
@@ -69,7 +69,7 @@ export const isOntologyOutwardEdge = (
 ): edge is OntologyOutwardEdge => {
   return (
     isOntologyEdgeKind(edge.kind) ||
-    (isSharedEdgeKind(edge.kind) && isEntityEditionId(edge.rightEndpoint))
+    (isSharedEdgeKind(edge.kind) && isEntityIdAndTimestamp(edge.rightEndpoint))
   );
 };
 

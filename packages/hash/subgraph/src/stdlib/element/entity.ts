@@ -2,7 +2,8 @@ import { Subgraph } from "../../types/subgraph";
 import {
   EntityEditionId,
   EntityId,
-  isEntityEditionId,
+  EntityIdAndTimestamp,
+  isEntityIdAndTimestamp,
 } from "../../types/identifier";
 import { isEntityVertex } from "../../types/vertex";
 import { Entity } from "../../types/element";
@@ -31,13 +32,13 @@ export const getEntities = (subgraph: Subgraph): Entity[] => {
  * @param entityEditionId
  * @throws if the vertex isn't an `EntityVertex`
  */
-export const getEntityByEditionId = (
+export const getEntityByIdAndTimestamp = (
   subgraph: Subgraph,
-  entityEditionId: EntityEditionId,
+  entityIdAndTimestamp: EntityIdAndTimestamp,
 ): Entity | undefined => {
-  const { baseId: entityId, version } = entityEditionId;
+  const { baseId: entityId, timestamp } = entityIdAndTimestamp;
 
-  const vertex = subgraph.vertices[entityId]?.[version.transactionTime.from];
+  const vertex = subgraph.vertices[entityId]?.[timestamp];
 
   if (!vertex) {
     return undefined;
@@ -117,17 +118,15 @@ export const getEntityAtTimestamp = (
  */
 export const getRootsAsEntities = (subgraph: Subgraph): Entity[] => {
   return subgraph.roots.map((rootEditionId) => {
-    if (!isEntityEditionId(rootEditionId)) {
+    if (!isEntityIdAndTimestamp(rootEditionId)) {
       throw new Error(
-        `expected roots to be \`EntityEditionId\`s but found:\n${JSON.stringify(
+        `expected roots to be \`EntityIdAndTimestamp\`s but found:\n${JSON.stringify(
           rootEditionId,
         )}`,
       );
     }
     const rootVertex = mustBeDefined(
-      subgraph.vertices[rootEditionId.baseId]?.[
-        rootEditionId.version.transactionTime.from
-      ],
+      subgraph.vertices[rootEditionId.baseId]?.[rootEditionId.timestamp],
       `roots should have corresponding vertices but ${JSON.stringify(
         rootEditionId,
       )} was missing`,

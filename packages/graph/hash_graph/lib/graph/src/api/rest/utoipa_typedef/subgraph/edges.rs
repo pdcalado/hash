@@ -15,8 +15,27 @@ use crate::{
         time::TransactionTimestamp,
     },
     store::Record,
-    subgraph::edges::{KnowledgeGraphEdgeKind, OntologyOutwardEdges, OutwardEdge, SharedEdgeKind},
+    subgraph::edges::{KnowledgeGraphEdgeKind, OntologyEdgeKind, OutwardEdge, SharedEdgeKind},
 };
+
+#[derive(Debug, Hash, PartialEq, Eq, Serialize)]
+#[serde(untagged)]
+pub enum OntologyOutwardEdges {
+    ToOntology(OutwardEdge<OntologyEdgeKind, OntologyTypeEditionId>),
+    ToKnowledgeGraph(OutwardEdge<SharedEdgeKind, EntityIdAndTimestamp>),
+}
+
+// WARNING: This MUST be kept up to date with the enum variants.
+//   We have to do this because utoipa doesn't understand serde untagged:
+//   https://github.com/juhaku/utoipa/issues/320
+impl ToSchema for OntologyOutwardEdges {
+    fn schema() -> Schema {
+        OneOfBuilder::new()
+            .item(<OutwardEdge<OntologyEdgeKind, OntologyTypeEditionId>>::schema())
+            .item(<OutwardEdge<SharedEdgeKind, EntityIdAndTimestamp>>::schema())
+            .into()
+    }
+}
 
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
@@ -66,7 +85,21 @@ impl Edges {
             ontology: OntologyRootedEdges(edges.ontology.into_iter().fold(
                 HashMap::new(),
                 |mut map, (id, edges)| {
-                    let edges = edges.into_iter().collect();
+                    let edges = edges.into_iter().map(|edge| {
+                        match edge {
+                            crate::subgraph::edges::OntologyOutwardEdges::ToOntology(edge) => OntologyOutwardEdges::ToOntology(edge),
+                            crate::subgraph::edges::OntologyOutwardEdges::ToKnowledgeGraph(edge) => {
+                                OntologyOutwardEdges::ToKnowledgeGraph(OutwardEdge {
+                                    kind: edge.kind,
+                                    reversed: edge.reversed,
+                                    right_endpoint: EntityIdAndTimestamp {
+                                        base_id: edge.right_endpoint.base_id(),
+                                        timestamp: edge.right_endpoint.version().transaction_time().from,
+                                    },
+                                })
+                            }
+                        }
+                    }).collect();
                     match map.entry(id.base_id().clone()) {
                         Entry::Occupied(entry) => {
                             entry.into_mut().insert(id.version(), edges);

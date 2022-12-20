@@ -41,7 +41,7 @@ use crate::{
 use crate::{
     identifier::{
         knowledge::{EntityId, EntityRecordId, EntityVersion},
-        time::DecisionTimestamp,
+        time::{BoundedDecisionTimespan, BoundedTransactionTimespan, DecisionTimestamp},
     },
     knowledge::{EntityProperties, LinkOrder},
 };

@@ -5,12 +5,12 @@ import {
 } from "../types/subgraph";
 import { getDataTypeByEditionId } from "./element/data-type";
 import {
-  isEntityEditionId,
+  isEntityIdAndTimestamp,
   isOntologyTypeEditionId,
 } from "../types/identifier";
 import { getPropertyTypeByEditionId } from "./element/property-type";
 import { getEntityTypeByEditionId } from "./element/entity-type";
-import { getEntityByEditionId } from "./element/entity";
+import { getEntityByIdAndTimestamp } from "./element/entity";
 import { Vertex } from "../types/vertex";
 import { mustBeDefined } from "../shared/invariant";
 
@@ -138,12 +138,12 @@ export const isEntityRootedSubgraph = (
   subgraph: Subgraph,
 ): subgraph is Subgraph<SubgraphRootTypes["entity"]> => {
   for (const rootEditionId of subgraph.roots) {
-    if (!isEntityEditionId(rootEditionId)) {
+    if (!isEntityIdAndTimestamp(rootEditionId)) {
       return false;
     }
 
     mustBeDefined(
-      getEntityByEditionId(subgraph, rootEditionId),
+      getEntityByIdAndTimestamp(subgraph, rootEditionId),
       `roots should have corresponding vertices but ${JSON.stringify(
         rootEditionId,
       )} was missing`,
