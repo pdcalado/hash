@@ -73,6 +73,25 @@ export interface AnyFilter {
 /**
  *
  * @export
+ * @interface BoundedTimespan
+ */
+export interface BoundedTimespan {
+  /**
+   *
+   * @type {string}
+   * @memberof BoundedTimespan
+   */
+  from: string;
+  /**
+   *
+   * @type {string}
+   * @memberof BoundedTimespan
+   */
+  to?: string;
+}
+/**
+ *
+ * @export
  * @interface CreateDataTypeRequest
  */
 export interface CreateDataTypeRequest {
@@ -320,6 +339,18 @@ export interface DataTypeWithMetadata {
   schema: DataType;
 }
 /**
+ * Time axis for the decision time.  This is used as the generic argument to time-related structs and can be used as tag value.
+ * @export
+ * @enum {string}
+ */
+
+export const DecisionTime = {
+  Decision: "decision",
+} as const;
+
+export type DecisionTime = typeof DecisionTime[keyof typeof DecisionTime];
+
+/**
  *
  * @export
  * @interface EdgeResolveDepths
@@ -399,10 +430,10 @@ export interface EntityEditionId {
   recordId: number;
   /**
    *
-   * @type {string}
+   * @type {EntityVersion}
    * @memberof EntityEditionId
    */
-  version: string;
+  version: EntityVersion;
 }
 /**
  *
@@ -672,6 +703,25 @@ export interface EntityTypeWithMetadata {
 /**
  *
  * @export
+ * @interface EntityVersion
+ */
+export interface EntityVersion {
+  /**
+   *
+   * @type {BoundedTimespan}
+   * @memberof EntityVersion
+   */
+  decisionTime: BoundedTimespan;
+  /**
+   *
+   * @type {BoundedTimespan}
+   * @memberof EntityVersion
+   */
+  transactionTime: BoundedTimespan;
+}
+/**
+ *
+ * @export
  * @interface EqualFilter
  */
 export interface EqualFilter {
@@ -746,10 +796,10 @@ export interface GraphElementEditionIdOneOf1 {
   recordId: number;
   /**
    *
-   * @type {string}
+   * @type {EntityVersion}
    * @memberof GraphElementEditionIdOneOf1
    */
-  version: string;
+  version: EntityVersion;
 }
 /**
  * @type GraphElementId
@@ -1739,6 +1789,93 @@ export interface Subgraph {
    */
   vertices: Vertices;
 }
+/**
+ *
+ * @export
+ * @interface Timespan
+ */
+export interface Timespan {
+  /**
+   *
+   * @type {TimespanBound}
+   * @memberof Timespan
+   */
+  from: TimespanBound;
+  /**
+   *
+   * @type {TimespanBound}
+   * @memberof Timespan
+   */
+  to: TimespanBound;
+}
+/**
+ * @type TimespanBound
+ * @export
+ */
+export type TimespanBound = TimespanBoundOneOf | TimespanBoundOneOf1;
+
+/**
+ *
+ * @export
+ * @interface TimespanBoundOneOf
+ */
+export interface TimespanBoundOneOf {
+  /**
+   *
+   * @type {object}
+   * @memberof TimespanBoundOneOf
+   */
+  bound: TimespanBoundOneOfBoundEnum;
+}
+
+export const TimespanBoundOneOfBoundEnum = {
+  Unbound: "unbound",
+} as const;
+
+export type TimespanBoundOneOfBoundEnum =
+  typeof TimespanBoundOneOfBoundEnum[keyof typeof TimespanBoundOneOfBoundEnum];
+
+/**
+ *
+ * @export
+ * @interface TimespanBoundOneOf1
+ */
+export interface TimespanBoundOneOf1 {
+  /**
+   *
+   * @type {object}
+   * @memberof TimespanBoundOneOf1
+   */
+  bound: TimespanBoundOneOf1BoundEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof TimespanBoundOneOf1
+   */
+  timestamp: string;
+}
+
+export const TimespanBoundOneOf1BoundEnum = {
+  Included: "included",
+  Excluded: "excluded",
+} as const;
+
+export type TimespanBoundOneOf1BoundEnum =
+  typeof TimespanBoundOneOf1BoundEnum[keyof typeof TimespanBoundOneOf1BoundEnum];
+
+/**
+ * Time axis for the transaction time.  This is used as the generic argument to time-related structs and can be used as tag value.
+ * @export
+ * @enum {string}
+ */
+
+export const TransactionTime = {
+  Transaction: "transaction",
+} as const;
+
+export type TransactionTime =
+  typeof TransactionTime[keyof typeof TransactionTime];
+
 /**
  * The contents of a Data Type update request
  * @export

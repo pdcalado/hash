@@ -29,12 +29,15 @@ use utoipa::{
         self, schema, schema::RefOr, ArrayBuilder, KnownFormat, ObjectBuilder, OneOfBuilder, Ref,
         SchemaFormat, SchemaType,
     },
-    Modify, OpenApi,
+    Modify, OpenApi, ToSchema,
 };
 
 use self::{api_resource::RoutedResource, middleware::span_maker};
 use crate::{
     api::rest::middleware::log_request_and_response,
+    identifier::time::{
+        BoundedTimespan, DecisionTime, Timespan, TimespanBound, Timestamp, TransactionTime,
+    },
     ontology::{domain_validator::DomainValidator, Selector},
     store::{QueryError, StorePool},
 };
@@ -131,10 +134,18 @@ async fn serve_static_schema(Path(path): Path<String>) -> Result<Response, Statu
     tags(
         (name = "Graph", description = "HASH Graph API")
     ),
-    modifiers(&MergeAddon, &ExternalRefAddon, &OperationGraphTagAddon, &FilterSchemaAddon),
+    modifiers(
+        &MergeAddon,
+        &ExternalRefAddon,
+        &OperationGraphTagAddon,
+        &FilterSchemaAddon,
+        &TimeSchemaAddon,
+    ),
     components(
         schemas(
             Selector,
+            DecisionTime,
+            TransactionTime,
         )
     ),
 )]
@@ -381,6 +392,32 @@ impl Modify for FilterSchemaAddon {
                         .build(),
                 )
                 .into(),
+            );
+        }
+    }
+}
+
+struct TimeSchemaAddon;
+
+impl Modify for TimeSchemaAddon {
+    fn modify(&self, openapi: &mut openapi::OpenApi) {
+        if let Some(ref mut components) = openapi.components {
+            components
+                .schemas
+                .insert("Timestamp".to_owned(), Timestamp::<()>::schema().into());
+
+            components.schemas.insert(
+                "TimespanBound".to_owned(),
+                TimespanBound::<()>::schema().into(),
+            );
+
+            components
+                .schemas
+                .insert("Timespan".to_owned(), Timespan::<()>::schema().into());
+
+            components.schemas.insert(
+                "BoundedTimespan".to_owned(),
+                BoundedTimespan::<()>::schema().into(),
             );
         }
     }
