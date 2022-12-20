@@ -23,6 +23,7 @@ import {
   Vertices,
   PropertyObject,
   EntityId,
+  EntityVersion,
 } from "../../src";
 
 const mapDataType = (dataType: DataTypeGraphApi): DataType => {
@@ -121,7 +122,8 @@ const mapKnowledgeGraphVertex = (
         ...vertex.inner.metadata,
         editionId: {
           baseId: vertex.inner.metadata.editionId.baseId as EntityId,
-          version: vertex.inner.metadata.editionId.version,
+          recordId: vertex.inner.metadata.editionId.recordId,
+          version: vertex.inner.metadata.editionId.version as EntityVersion,
         },
         entityTypeId: vertex.inner.metadata.entityTypeId as VersionedUri,
       },

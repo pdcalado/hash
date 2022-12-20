@@ -36,14 +36,25 @@ export const extractEntityUuidFromEntityId = (entityId: EntityId): string => {
 /** @todo - consider Type Branding this */
 export type Timestamp = string;
 
+export type Timespan = {
+  from: Timestamp;
+  to?: Timestamp;
+};
+
 // ISO-formatted datetime string
-export type EntityVersion = Timestamp;
+export type EntityVersion = {
+  decisionTime: Timespan;
+  transactionTime: Timespan;
+};
+
+export type EntityRecordId = number;
 
 /**
  * An identifier of a specific edition of an `Entity` at a given `EntityVersion`
  */
 export type EntityEditionId = {
   baseId: EntityId;
+  recordId: EntityRecordId;
   version: EntityVersion;
 };
 
@@ -51,12 +62,12 @@ export type EntityEditionId = {
  * A string representation of an `EntityEditionId`.
  * Can be useful for storing in keys of objects and other similar string-focused situations.
  */
-export type EntityEditionIdString = `${EntityId}/v/${EntityVersion}`;
+export type EntityEditionIdString = `${EntityId}/v/${EntityRecordId}`;
 
 export const entityEditionIdToString = (
   entityEditionId: EntityEditionId,
 ): EntityEditionIdString =>
-  `${entityEditionId.baseId}/v/${entityEditionId.version}`;
+  `${entityEditionId.baseId}/v/${entityEditionId.recordId}`;
 
 /**
  * A tuple struct of a given `EntityId` and timestamp, used to identify an `Entity` at a given moment of time, where
@@ -95,9 +106,10 @@ export const isEntityEditionId = (
     "baseId" in editionId &&
     typeof editionId.baseId === "string" &&
     isEntityId(editionId.baseId) &&
-    "version" in editionId &&
-    typeof editionId.version === "string" &&
-    !Number.isNaN(Date.parse(editionId.version))
+    "recordId" in editionId &&
+    typeof editionId.recordId === "number" &&
+    Number.isInteger(editionId.recordId) &&
+    "version" in editionId
   );
 };
 
