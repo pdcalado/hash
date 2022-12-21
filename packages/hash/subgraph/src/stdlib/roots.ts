@@ -5,8 +5,10 @@ import {
 } from "../types/subgraph";
 import { getDataTypeByEditionId } from "./element/data-type";
 import {
+  EntityEditionId,
   isEntityEditionId,
   isOntologyTypeEditionId,
+  OntologyTypeEditionId,
 } from "../types/identifier";
 import { getPropertyTypeByEditionId } from "./element/property-type";
 import { getEntityTypeByEditionId } from "./element/entity-type";
@@ -29,13 +31,20 @@ export const getRoots = <RootType extends SubgraphRootType>(
   subgraph: Subgraph<RootType>,
 ): RootType["element"][] =>
   subgraph.roots.map((rootEditionId) => {
+    let rootVersion;
+    if (typeof rootEditionId.version === "object") {
+      rootVersion = (rootEditionId as EntityEditionId).version.transactionTime
+        .start;
+    } else {
+      rootVersion = (rootEditionId as OntologyTypeEditionId).version;
+    }
     const root = mustBeDefined(
       subgraph.vertices[rootEditionId.baseId]?.[
         // We could use type-guards here to convince TS that it's safe, but that would be slower, it's currently not
         // smart enough to realise this can produce a value of type `Vertex` as it struggles with discriminating
         // `EntityId` and `BaseUri`
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        (rootEditionId as any).version
+        rootVersion as any
       ] as Vertex,
       `roots should have corresponding vertices but ${JSON.stringify(
         rootEditionId,
