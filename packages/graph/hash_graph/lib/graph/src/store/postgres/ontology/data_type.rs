@@ -5,7 +5,7 @@ use type_system::DataType;
 
 use crate::{
     identifier::ontology::OntologyTypeEditionId,
-    ontology::{DataTypeWithMetadata, OntologyElementMetadata, OntologyTypeWithMetadata},
+    ontology::{DataTypeWithMetadata, OntologyElementMetadata},
     provenance::{OwnedById, UpdatedById},
     store::{
         crud::Read,
@@ -100,7 +100,7 @@ impl<C: AsClient> DataTypeStore for PostgresStore<C> {
             let data_type = data_type.insert_into_subgraph_as_root(&mut subgraph);
 
             self.traverse_data_type(
-                &data_type.metadata().edition_id().clone(),
+                &data_type.vertex_id().clone(),
                 &mut dependency_context,
                 &mut subgraph,
                 graph_resolve_depths,

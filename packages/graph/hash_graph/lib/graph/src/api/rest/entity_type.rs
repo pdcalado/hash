@@ -17,7 +17,7 @@ use crate::{
             Edges, OntologyRootedEdges, OntologyVertices, Subgraph, Vertex, Vertices,
         },
     },
-    identifier::{ontology::OntologyTypeEditionId, GraphElementEditionId, GraphElementId},
+    identifier::{ontology::OntologyTypeEditionId, GraphElementId, GraphElementVertexId},
     ontology::{
         domain_validator::{DomainValidator, ValidateOntologyType},
         patch_id_and_parse, EntityTypeQueryToken, EntityTypeWithMetadata, OntologyElementMetadata,
@@ -55,7 +55,7 @@ use crate::{
             EntityTypeStructuralQuery,
             EntityTypeQueryToken,
             GraphElementId,
-            GraphElementEditionId,
+            GraphElementVertexId,
             ProvenanceMetadata,
             OntologyVertices,
             Vertices,

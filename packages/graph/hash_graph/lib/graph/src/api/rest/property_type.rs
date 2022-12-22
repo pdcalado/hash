@@ -15,7 +15,7 @@ use crate::{
         report_to_status_code,
         utoipa_typedef::subgraph::{Edges, Subgraph, Vertex, Vertices},
     },
-    identifier::{ontology::OntologyTypeEditionId, GraphElementEditionId, GraphElementId},
+    identifier::{ontology::OntologyTypeEditionId, GraphElementId, GraphElementVertexId},
     ontology::{
         domain_validator::{DomainValidator, ValidateOntologyType},
         patch_id_and_parse, OntologyElementMetadata, PropertyTypeQueryToken,
@@ -51,7 +51,7 @@ use crate::{
             PropertyTypeStructuralQuery,
             PropertyTypeQueryToken,
             GraphElementId,
-            GraphElementEditionId,
+            GraphElementVertexId,
             Vertices,
             Vertex,
             OntologyEdgeKind,

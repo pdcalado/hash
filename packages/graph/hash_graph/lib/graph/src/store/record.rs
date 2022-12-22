@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    identifier::GraphElementEditionId,
+    identifier::GraphElementVertexId,
     store::query::{Filter, QueryPath},
     subgraph::Subgraph,
 };
@@ -13,30 +13,33 @@ use crate::{
 ///
 /// [`store`]: crate::store
 pub trait Record: Sized + Send {
-    type EditionId: Clone + PartialEq + Eq + Hash + Send + Sync + Into<GraphElementEditionId>;
+    type EditionId: Clone + PartialEq + Eq + Hash + Send + Sync;
+    type VertexId: Clone + PartialEq + Eq + Hash + Send + Sync + Into<GraphElementVertexId>;
     type QueryPath<'p>: QueryPath + Send + Sync;
 
     fn edition_id(&self) -> &Self::EditionId;
 
-    fn create_filter_for_edition_id(edition_id: &Self::EditionId) -> Filter<Self>;
+    fn vertex_id(&self) -> Self::VertexId;
+
+    fn create_filter_for_vertex_id(vertex_id: &Self::VertexId) -> Filter<Self>;
 
     fn subgraph_entry<'s>(
         subgraph: &'s mut Subgraph,
-        edition_id: &Self::EditionId,
-    ) -> RawEntryMut<'s, Self::EditionId, Self, RandomState>;
+        vertex_id: &Self::VertexId,
+    ) -> RawEntryMut<'s, Self::VertexId, Self, RandomState>;
 
     fn insert_into_subgraph(self, subgraph: &mut Subgraph) -> &Self {
-        let edition_id = self.edition_id();
-        Self::subgraph_entry(subgraph, edition_id)
-            .or_insert(edition_id.clone(), self)
+        let vertex_id = self.vertex_id();
+        Self::subgraph_entry(subgraph, &vertex_id)
+            .or_insert(vertex_id, self)
             .1
     }
 
     fn insert_into_subgraph_as_root(self, subgraph: &mut Subgraph) -> &Self {
-        let edition_id = self.edition_id();
-        subgraph.roots.insert(edition_id.clone().into());
-        Self::subgraph_entry(subgraph, edition_id)
-            .or_insert(edition_id.clone(), self)
+        let vertex_id = self.vertex_id();
+        subgraph.roots.insert(vertex_id.clone().into());
+        Self::subgraph_entry(subgraph, &vertex_id)
+            .or_insert(vertex_id, self)
             .1
     }
 }

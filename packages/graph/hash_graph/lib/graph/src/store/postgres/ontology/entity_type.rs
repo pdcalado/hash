@@ -106,7 +106,7 @@ impl<C: AsClient> PostgresStore<C> {
             if let Some(property_type_ref_uris) = property_type_ref_uris {
                 for property_type_ref_uri in property_type_ref_uris {
                     subgraph.edges.insert(Edge::Ontology {
-                        edition_id: entity_type_id.clone(),
+                        vertex_id: entity_type_id.clone(),
                         outward_edge: OntologyOutwardEdges::ToOntology(OutwardEdge {
                             kind: OntologyEdgeKind::ConstrainsPropertiesOn,
                             reversed: false,
@@ -134,7 +134,7 @@ impl<C: AsClient> PostgresStore<C> {
             if let Some(inherits_from_type_ref_uris) = inherits_from_type_ref_uris {
                 for inherits_from_type_ref_uri in inherits_from_type_ref_uris {
                     subgraph.edges.insert(Edge::Ontology {
-                        edition_id: entity_type_id.clone(),
+                        vertex_id: entity_type_id.clone(),
                         outward_edge: OntologyOutwardEdges::ToOntology(OutwardEdge {
                             kind: OntologyEdgeKind::InheritsFrom,
                             reversed: false,
@@ -164,7 +164,7 @@ impl<C: AsClient> PostgresStore<C> {
                 for (link_type_uri, destination_type_uris) in link_mappings {
                     if current_resolve_depth.constrains_links_on.outgoing > 0 {
                         subgraph.edges.insert(Edge::Ontology {
-                            edition_id: entity_type_id.clone(),
+                            vertex_id: entity_type_id.clone(),
                             outward_edge: OntologyOutwardEdges::ToOntology(OutwardEdge {
                                 kind: OntologyEdgeKind::ConstrainsLinksOn,
                                 reversed: false,
@@ -194,7 +194,7 @@ impl<C: AsClient> PostgresStore<C> {
                         {
                             for destination_type_uri in destination_type_uris {
                                 subgraph.edges.insert(Edge::Ontology {
-                                    edition_id: entity_type_id.clone(),
+                                    vertex_id: entity_type_id.clone(),
                                     outward_edge: OntologyOutwardEdges::ToOntology(OutwardEdge {
                                         kind: OntologyEdgeKind::ConstrainsLinkDestinationsOn,
                                         reversed: false,
@@ -295,7 +295,7 @@ impl<C: AsClient> EntityTypeStore for PostgresStore<C> {
             let entity_type = entity_type.insert_into_subgraph_as_root(&mut subgraph);
 
             self.traverse_entity_type(
-                &entity_type.metadata().edition_id().clone(),
+                &entity_type.vertex_id().clone(),
                 &mut dependency_context,
                 &mut subgraph,
                 graph_resolve_depths,

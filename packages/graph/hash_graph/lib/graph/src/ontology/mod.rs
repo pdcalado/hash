@@ -201,24 +201,29 @@ pub struct DataTypeWithMetadata {
 impl Record for DataTypeWithMetadata {
     type EditionId = OntologyTypeEditionId;
     type QueryPath<'p> = DataTypeQueryPath;
+    type VertexId = Self::EditionId;
 
     fn edition_id(&self) -> &Self::EditionId {
         self.metadata().edition_id()
     }
 
-    fn create_filter_for_edition_id(edition_id: &Self::EditionId) -> Filter<Self> {
-        Filter::for_ontology_type_edition_id(edition_id)
+    fn vertex_id(&self) -> Self::VertexId {
+        self.edition_id().clone()
+    }
+
+    fn create_filter_for_vertex_id(vertex_id: &Self::VertexId) -> Filter<Self> {
+        Filter::for_ontology_type_edition_id(vertex_id)
     }
 
     fn subgraph_entry<'s>(
         subgraph: &'s mut Subgraph,
-        edition_id: &Self::EditionId,
-    ) -> RawEntryMut<'s, Self::EditionId, Self, RandomState> {
+        vertex_id: &Self::VertexId,
+    ) -> RawEntryMut<'s, Self::VertexId, Self, RandomState> {
         subgraph
             .vertices
             .data_types
             .raw_entry_mut()
-            .from_key(edition_id)
+            .from_key(vertex_id)
     }
 }
 
@@ -252,24 +257,29 @@ pub struct PropertyTypeWithMetadata {
 impl Record for PropertyTypeWithMetadata {
     type EditionId = OntologyTypeEditionId;
     type QueryPath<'p> = PropertyTypeQueryPath;
+    type VertexId = Self::EditionId;
 
     fn edition_id(&self) -> &Self::EditionId {
         self.metadata().edition_id()
     }
 
-    fn create_filter_for_edition_id(edition_id: &Self::EditionId) -> Filter<Self> {
-        Filter::for_ontology_type_edition_id(edition_id)
+    fn vertex_id(&self) -> Self::VertexId {
+        self.edition_id().clone()
+    }
+
+    fn create_filter_for_vertex_id(vertex_id: &Self::VertexId) -> Filter<Self> {
+        Filter::for_ontology_type_edition_id(vertex_id)
     }
 
     fn subgraph_entry<'s>(
         subgraph: &'s mut Subgraph,
-        edition_id: &Self::EditionId,
-    ) -> RawEntryMut<'s, Self::EditionId, Self, RandomState> {
+        vertex_id: &Self::VertexId,
+    ) -> RawEntryMut<'s, Self::VertexId, Self, RandomState> {
         subgraph
             .vertices
             .property_types
             .raw_entry_mut()
-            .from_key(edition_id)
+            .from_key(vertex_id)
     }
 }
 
@@ -303,24 +313,29 @@ pub struct EntityTypeWithMetadata {
 impl Record for EntityTypeWithMetadata {
     type EditionId = OntologyTypeEditionId;
     type QueryPath<'p> = EntityTypeQueryPath;
+    type VertexId = Self::EditionId;
 
     fn edition_id(&self) -> &Self::EditionId {
         self.metadata().edition_id()
     }
 
-    fn create_filter_for_edition_id(edition_id: &Self::EditionId) -> Filter<Self> {
-        Filter::for_ontology_type_edition_id(edition_id)
+    fn vertex_id(&self) -> Self::VertexId {
+        self.edition_id().clone()
+    }
+
+    fn create_filter_for_vertex_id(vertex_id: &Self::VertexId) -> Filter<Self> {
+        Filter::for_ontology_type_edition_id(vertex_id)
     }
 
     fn subgraph_entry<'s>(
         subgraph: &'s mut Subgraph,
-        edition_id: &Self::EditionId,
-    ) -> RawEntryMut<'s, Self::EditionId, Self, RandomState> {
+        vertex_id: &Self::VertexId,
+    ) -> RawEntryMut<'s, Self::VertexId, Self, RandomState> {
         subgraph
             .vertices
             .entity_types
             .raw_entry_mut()
-            .from_key(edition_id)
+            .from_key(vertex_id)
     }
 }
 

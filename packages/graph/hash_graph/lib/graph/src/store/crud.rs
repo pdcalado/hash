@@ -54,15 +54,15 @@ pub trait Read<R: Record + Send>: Sync {
     async fn read_into_subgraph<'r>(
         &self,
         subgraph: &'r mut Subgraph,
-        edition_id: &R::EditionId,
+        vertex_id: &R::VertexId,
     ) -> Result<&'r R, QueryError> {
-        Ok(match R::subgraph_entry(subgraph, edition_id) {
+        Ok(match R::subgraph_entry(subgraph, vertex_id) {
             RawEntryMut::Occupied(entry) => entry.into_mut(),
             RawEntryMut::Vacant(entry) => {
                 entry
                     .insert(
-                        edition_id.clone(),
-                        self.read_one(&R::create_filter_for_edition_id(edition_id))
+                        vertex_id.clone(),
+                        self.read_one(&R::create_filter_for_vertex_id(vertex_id))
                             .await?,
                     )
                     .1

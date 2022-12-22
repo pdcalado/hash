@@ -82,7 +82,7 @@ impl<C: AsClient> PostgresStore<C> {
             if let Some(data_type_ref_uris) = data_type_ref_uris {
                 for data_type_ref in data_type_ref_uris {
                     subgraph.edges.insert(Edge::Ontology {
-                        edition_id: property_type_id.clone(),
+                        vertex_id: property_type_id.clone(),
                         outward_edge: OntologyOutwardEdges::ToOntology(OutwardEdge {
                             kind: OntologyEdgeKind::ConstrainsValuesOn,
                             reversed: false,
@@ -109,7 +109,7 @@ impl<C: AsClient> PostgresStore<C> {
             if let Some(property_type_ref_uris) = property_type_ref_uris {
                 for property_type_ref_uri in property_type_ref_uris {
                     subgraph.edges.insert(Edge::Ontology {
-                        edition_id: property_type_id.clone(),
+                        vertex_id: property_type_id.clone(),
                         outward_edge: OntologyOutwardEdges::ToOntology(OutwardEdge {
                             kind: OntologyEdgeKind::ConstrainsPropertiesOn,
                             reversed: false,
@@ -204,7 +204,7 @@ impl<C: AsClient> PropertyTypeStore for PostgresStore<C> {
             let property_type = property_type.insert_into_subgraph_as_root(&mut subgraph);
 
             self.traverse_property_type(
-                &property_type.metadata().edition_id().clone(),
+                &property_type.vertex_id().clone(),
                 &mut dependency_context,
                 &mut subgraph,
                 graph_resolve_depths,
