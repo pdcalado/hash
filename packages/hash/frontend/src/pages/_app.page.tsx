@@ -5,6 +5,7 @@ require("setimmediate");
 import { ApolloProvider } from "@apollo/client/react";
 import { TypeSystemInitializer } from "@blockprotocol/type-system";
 import { Subgraph, SubgraphRootTypes } from "@hashintel/hash-subgraph";
+import { getRoots } from "@hashintel/hash-subgraph/src/stdlib/roots";
 import { FunctionComponent, useEffect, useState } from "react";
 import { ModalProvider } from "react-modal-hook";
 import { configureScope } from "@sentry/nextjs";
@@ -168,15 +169,15 @@ AppWithTypeSystemContextProvider.getInitialProps = async (appContext) => {
     return {};
   }
 
-  const userEntityEditionId = (
-    subgraph as Subgraph<SubgraphRootTypes["entity"]>
-  ).roots[0]!;
+  const userEntity = getRoots(
+    subgraph as Subgraph<SubgraphRootTypes["entity"]>,
+  )[0]!;
 
   // The type system package needs to be initialized before calling `constructAuthenticatedUser`
   await TypeSystemInitializer.initialize();
 
   const initialAuthenticatedUser = constructAuthenticatedUser({
-    userEntityEditionId,
+    userEntity,
     subgraph,
     kratosSession,
   });

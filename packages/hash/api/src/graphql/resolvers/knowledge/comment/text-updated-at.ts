@@ -21,5 +21,5 @@ export const commentTextUpdatedAtResolver: ResolverFn<
   );
   const textEntity = await getCommentText({ graphApi }, { comment });
 
-  return textEntity.metadata.editionId.version;
+  return textEntity.metadata.version;
 };

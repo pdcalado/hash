@@ -184,8 +184,8 @@ describe("Entity CRU", () => {
     expect(fetchedEntity.metadata.editionId.baseId).toEqual(
       createdEntity.metadata.editionId.baseId,
     );
-    expect(fetchedEntity.metadata.editionId.version).toEqual(
-      createdEntity.metadata.editionId.version,
+    expect(fetchedEntity.metadata.editionId.recordId).toEqual(
+      createdEntity.metadata.editionId.recordId,
     );
   });
 
@@ -241,8 +241,8 @@ describe("Entity CRU", () => {
     expect(allEntitys.length).toBeGreaterThanOrEqual(1);
     expect(newlyUpdated).toBeDefined();
 
-    expect(newlyUpdated?.metadata.editionId.version).toEqual(
-      updatedEntity.metadata.editionId.version,
+    expect(newlyUpdated?.metadata.editionId.recordId).toEqual(
+      updatedEntity.metadata.editionId.recordId,
     );
     expect(
       newlyUpdated?.properties[namePropertyType.metadata.editionId.baseId],

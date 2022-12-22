@@ -54,7 +54,11 @@ export type EntityRecordId = number;
 export type EntityEditionId = {
   baseId: EntityId;
   recordId: EntityRecordId;
-  version: EntityVersion;
+};
+
+export type EntityVertexId = {
+  baseId: EntityId;
+  version: Timestamp;
 };
 
 /**
@@ -80,7 +84,7 @@ export type EntityIdAndTimestamp = {
 
 export type { OntologyTypeEditionId };
 
-export type GraphElementEditionId = EntityEditionId | OntologyTypeEditionId;
+export type GraphElementVertexId = EntityVertexId | OntologyTypeEditionId;
 
 export const ontologyTypeEditionIdToVersionedUri = (
   ontologyTypeEditionId: OntologyTypeEditionId,
@@ -98,16 +102,16 @@ export const isEntityId = (entityId: string): entityId is EntityId => {
   );
 };
 
-export const isEntityEditionId = (
-  editionId: object,
-): editionId is EntityEditionId => {
+export const isEntityVertexId = (
+  vertexId: object,
+): vertexId is EntityVertexId => {
   return (
-    "baseId" in editionId &&
-    typeof editionId.baseId === "string" &&
-    isEntityId(editionId.baseId) &&
-    "recordId" in editionId &&
-    typeof editionId.recordId === "number" &&
-    Number.isInteger(editionId.recordId)
+    "baseId" in vertexId &&
+    typeof vertexId.baseId === "string" &&
+    isEntityId(vertexId.baseId) &&
+    "version" in vertexId &&
+    typeof vertexId.version === "string" &&
+    !Number.isNaN(Date.parse(vertexId.version))
   );
 };
 
@@ -124,15 +128,15 @@ export const isOntologyTypeEditionId = (
   );
 };
 
-export const isEntityAndTimestamp = (
-  editionId: object,
-): editionId is EntityIdAndTimestamp => {
+export const isEntityIdAndTimestamp = (
+  entityIdAndTimestamp: object,
+): entityIdAndTimestamp is EntityIdAndTimestamp => {
   return (
-    "baseId" in editionId &&
-    typeof editionId.baseId === "string" &&
-    isEntityId(editionId.baseId) &&
-    "timestamp" in editionId &&
-    typeof editionId.timestamp === "string" &&
-    !Number.isNaN(Date.parse(editionId.timestamp))
+    "baseId" in entityIdAndTimestamp &&
+    typeof entityIdAndTimestamp.baseId === "string" &&
+    isEntityId(entityIdAndTimestamp.baseId) &&
+    "timestamp" in entityIdAndTimestamp &&
+    typeof entityIdAndTimestamp.timestamp === "string" &&
+    !Number.isNaN(Date.parse(entityIdAndTimestamp.timestamp))
   );
 };

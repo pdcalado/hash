@@ -4,15 +4,10 @@ import {
   SubgraphRootTypes,
 } from "../types/subgraph";
 import { getDataTypeByEditionId } from "./element/data-type";
-import {
-  EntityEditionId,
-  isEntityEditionId,
-  isOntologyTypeEditionId,
-  OntologyTypeEditionId,
-} from "../types/identifier";
+import { isEntityVertexId, isOntologyTypeEditionId } from "../types/identifier";
 import { getPropertyTypeByEditionId } from "./element/property-type";
 import { getEntityTypeByEditionId } from "./element/entity-type";
-import { getEntityByEditionId } from "./element/entity";
+import { getEntityByVertexId } from "./element/entity";
 import { Vertex } from "../types/vertex";
 import { mustBeDefined } from "../shared/invariant";
 
@@ -30,24 +25,17 @@ import { mustBeDefined } from "../shared/invariant";
 export const getRoots = <RootType extends SubgraphRootType>(
   subgraph: Subgraph<RootType>,
 ): RootType["element"][] =>
-  subgraph.roots.map((rootEditionId) => {
-    let rootVersion;
-    if (typeof rootEditionId.version === "object") {
-      rootVersion = (rootEditionId as EntityEditionId).version.transactionTime
-        .start;
-    } else {
-      rootVersion = (rootEditionId as OntologyTypeEditionId).version;
-    }
+  subgraph.roots.map((rootVertexId) => {
     const root = mustBeDefined(
-      subgraph.vertices[rootEditionId.baseId]?.[
+      subgraph.vertices[rootVertexId.baseId]?.[
         // We could use type-guards here to convince TS that it's safe, but that would be slower, it's currently not
         // smart enough to realise this can produce a value of type `Vertex` as it struggles with discriminating
         // `EntityId` and `BaseUri`
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        rootVersion as any
+        rootVertexId.version as any
       ] as Vertex,
       `roots should have corresponding vertices but ${JSON.stringify(
-        rootEditionId,
+        rootVertexId,
       )} was missing`,
     );
 
@@ -146,15 +134,15 @@ export const isEntityTypeRootedSubgraph = (
 export const isEntityRootedSubgraph = (
   subgraph: Subgraph,
 ): subgraph is Subgraph<SubgraphRootTypes["entity"]> => {
-  for (const rootEditionId of subgraph.roots) {
-    if (!isEntityEditionId(rootEditionId)) {
+  for (const rootVertexId of subgraph.roots) {
+    if (!isEntityVertexId(rootVertexId)) {
       return false;
     }
 
     mustBeDefined(
-      getEntityByEditionId(subgraph, rootEditionId),
+      getEntityByVertexId(subgraph, rootVertexId),
       `roots should have corresponding vertices but ${JSON.stringify(
-        rootEditionId,
+        rootVertexId,
       )} was missing`,
     );
   }
