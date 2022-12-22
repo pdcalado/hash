@@ -134,20 +134,14 @@ impl EntityRecordId {
 pub struct EntityEditionId {
     base_id: EntityId,
     record_id: EntityRecordId,
-    version: EntityVersion,
 }
 
 impl EntityEditionId {
     #[must_use]
-    pub const fn new(
-        entity_id: EntityId,
-        record_id: EntityRecordId,
-        version: EntityVersion,
-    ) -> Self {
+    pub const fn new(entity_id: EntityId, record_id: EntityRecordId) -> Self {
         Self {
             base_id: entity_id,
             record_id,
-            version,
         }
     }
 
@@ -159,10 +153,5 @@ impl EntityEditionId {
     #[must_use]
     pub const fn record_id(&self) -> EntityRecordId {
         self.record_id
-    }
-
-    #[must_use]
-    pub const fn version(&self) -> EntityVersion {
-        self.version
     }
 }
