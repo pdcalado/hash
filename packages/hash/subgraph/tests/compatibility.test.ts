@@ -86,5 +86,7 @@ test("Graph API subgraph type is compatible with library type", () => {
     vertices: mapVertices(subgraphGraphApi.vertices),
     edges: mapEdges(subgraphGraphApi.edges),
     depths: subgraphGraphApi.depths,
+    timeProjection: subgraphGraphApi.timeProjection,
+    resolvedTimeProjection: subgraphGraphApi.resolvedTimeProjection,
   };
 });

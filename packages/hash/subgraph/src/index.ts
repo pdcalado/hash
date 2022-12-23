@@ -5,3 +5,4 @@ export * from "./types/element";
 export * from "./types/vertex";
 export * from "./types/edge";
 export * from "./types/subgraph";
+export * from "./types/time";

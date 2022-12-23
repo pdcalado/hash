@@ -11,6 +11,7 @@ import {
 import { Vertices } from "./vertex";
 import { Edges } from "./edge";
 import { EntityVertexId } from "./identifier";
+import { ResolvedTimeProjection, TimeProjection } from "./time";
 
 export type SubgraphRootTypes = {
   dataType: {
@@ -38,4 +39,6 @@ export type Subgraph<RootType extends SubgraphRootType = SubgraphRootType> = {
   vertices: Vertices;
   edges: Edges;
   depths: GraphResolveDepths;
+  timeProjection: TimeProjection;
+  resolvedTimeProjection: ResolvedTimeProjection;
 };
