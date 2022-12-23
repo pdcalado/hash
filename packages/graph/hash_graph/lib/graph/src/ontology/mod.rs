@@ -23,7 +23,7 @@ pub use self::{
     property_type::{PropertyTypeQueryPath, PropertyTypeQueryPathVisitor, PropertyTypeQueryToken},
 };
 use crate::{
-    identifier::ontology::OntologyTypeEditionId,
+    identifier::{ontology::OntologyTypeEditionId, time::TimeAxis},
     provenance::{OwnedById, ProvenanceMetadata},
     store::{query::Filter, Record},
     subgraph::Subgraph,
@@ -207,7 +207,7 @@ impl Record for DataTypeWithMetadata {
         self.metadata().edition_id()
     }
 
-    fn vertex_id(&self) -> Self::VertexId {
+    fn vertex_id(&self, _time_axis: TimeAxis) -> Self::VertexId {
         self.edition_id().clone()
     }
 
@@ -263,7 +263,7 @@ impl Record for PropertyTypeWithMetadata {
         self.metadata().edition_id()
     }
 
-    fn vertex_id(&self) -> Self::VertexId {
+    fn vertex_id(&self, _time_axis: TimeAxis) -> Self::VertexId {
         self.edition_id().clone()
     }
 
@@ -319,7 +319,7 @@ impl Record for EntityTypeWithMetadata {
         self.metadata().edition_id()
     }
 
-    fn vertex_id(&self) -> Self::VertexId {
+    fn vertex_id(&self, _time_axis: TimeAxis) -> Self::VertexId {
         self.edition_id().clone()
     }
 

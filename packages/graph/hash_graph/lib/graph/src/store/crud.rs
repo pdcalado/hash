@@ -12,6 +12,7 @@ use async_trait::async_trait;
 use error_stack::{ensure, Report, Result};
 
 use crate::{
+    identifier::time::ResolvedTimeProjection,
     store::{query::Filter, QueryError, Record},
     subgraph::Subgraph,
 };
@@ -28,11 +29,19 @@ pub trait Read<R: Record + Send>: Sync {
     /// Returns a value from the [`Store`] specified by the passed `query`.
     ///
     /// [`Store`]: crate::store::Store
-    async fn read(&self, query: &Filter<R>) -> Result<Vec<R>, QueryError>;
+    async fn read(
+        &self,
+        query: &Filter<R>,
+        time_projection: &ResolvedTimeProjection,
+    ) -> Result<Vec<R>, QueryError>;
 
     #[tracing::instrument(level = "info", skip(self, query))]
-    async fn read_one(&self, query: &Filter<R>) -> Result<R, QueryError> {
-        let mut records = self.read(query).await?;
+    async fn read_one(
+        &self,
+        query: &Filter<R>,
+        time_projection: &ResolvedTimeProjection,
+    ) -> Result<R, QueryError> {
+        let mut records = self.read(query, time_projection).await?;
         ensure!(
             records.len() <= 1,
             Report::new(QueryError).attach_printable(format!(
@@ -55,17 +64,15 @@ pub trait Read<R: Record + Send>: Sync {
         &self,
         subgraph: &'r mut Subgraph,
         vertex_id: &R::VertexId,
+        time_projection: &ResolvedTimeProjection,
     ) -> Result<&'r R, QueryError> {
         Ok(match R::subgraph_entry(subgraph, vertex_id) {
             RawEntryMut::Occupied(entry) => entry.into_mut(),
             RawEntryMut::Vacant(entry) => {
-                entry
-                    .insert(
-                        vertex_id.clone(),
-                        self.read_one(&R::create_filter_for_vertex_id(vertex_id))
-                            .await?,
-                    )
-                    .1
+                let record = self
+                    .read_one(&R::create_filter_for_vertex_id(vertex_id), time_projection)
+                    .await?;
+                entry.insert(vertex_id.clone(), record).1
             }
         })
     }

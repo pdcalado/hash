@@ -36,7 +36,7 @@ use self::{api_resource::RoutedResource, middleware::span_maker};
 use crate::{
     api::rest::middleware::log_request_and_response,
     identifier::time::{
-        DecisionTime, DecisionTimeProjection, ResolvedDecisionTimeProjection,
+        DecisionTime, DecisionTimeProjection, ProjectedTimestamp, ResolvedDecisionTimeProjection,
         ResolvedTimeProjection, ResolvedTransactionTimeProjection, TimeProjection, TimespanBound,
         Timestamp, TransactionTime, TransactionTimeProjection,
     },
@@ -147,6 +147,7 @@ async fn serve_static_schema(Path(path): Path<String>) -> Result<Response, Statu
             ResolvedDecisionTimeProjection,
             TransactionTime,
             TransactionTimeProjection,
+            ProjectedTimestamp,
             ResolvedTransactionTimeProjection,
         )
     ),
