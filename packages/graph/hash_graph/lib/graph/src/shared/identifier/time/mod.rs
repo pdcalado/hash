@@ -18,6 +18,7 @@ pub use self::{
     projection::{Image, Kernel, Projection, ResolvedImage, ResolvedKernel, ResolvedProjection},
     timespan::{ResolvedTimespan, Timespan, TimespanBound},
     timestamp::Timestamp,
+    version::VersionTimespan,
 };
 
 fn parse_bound(

@@ -97,4 +97,114 @@ impl<A> ResolvedTimespan<A> {
             end: self.end.cast(),
         }
     }
+
+    #[must_use]
+    pub fn intersect(&self, other: &Self) -> Self {
+        Self {
+            start: match (&self.start, &other.start) {
+                (TimespanBound::Unbounded, _) => other.start.clone(),
+                (_, TimespanBound::Unbounded) => self.start.clone(),
+                (TimespanBound::Included(lhs), TimespanBound::Included(rhs)) => {
+                    TimespanBound::Included(Timestamp::max(*lhs, *rhs))
+                }
+                (TimespanBound::Excluded(lhs), TimespanBound::Excluded(rhs)) => {
+                    TimespanBound::Excluded(Timestamp::max(*lhs, *rhs))
+                }
+                (TimespanBound::Included(lhs), TimespanBound::Excluded(rhs)) => {
+                    if lhs >= rhs {
+                        TimespanBound::Excluded(*rhs)
+                    } else {
+                        TimespanBound::Included(*lhs)
+                    }
+                }
+                (TimespanBound::Excluded(lhs), TimespanBound::Included(rhs)) => {
+                    if lhs > rhs {
+                        TimespanBound::Excluded(*rhs)
+                    } else {
+                        TimespanBound::Included(*lhs)
+                    }
+                }
+            },
+            end: match (&self.end, &other.end) {
+                (TimespanBound::Unbounded, _) => other.end.clone(),
+                (_, TimespanBound::Unbounded) => self.end.clone(),
+                (TimespanBound::Included(lhs), TimespanBound::Included(rhs)) => {
+                    TimespanBound::Included(Timestamp::min(*lhs, *rhs))
+                }
+                (TimespanBound::Excluded(lhs), TimespanBound::Excluded(rhs)) => {
+                    TimespanBound::Excluded(Timestamp::min(*lhs, *rhs))
+                }
+                (TimespanBound::Included(lhs), TimespanBound::Excluded(rhs)) => {
+                    if lhs < rhs {
+                        TimespanBound::Included(*lhs)
+                    } else {
+                        TimespanBound::Excluded(*rhs)
+                    }
+                }
+                (TimespanBound::Excluded(lhs), TimespanBound::Included(rhs)) => {
+                    if lhs <= rhs {
+                        TimespanBound::Included(*lhs)
+                    } else {
+                        TimespanBound::Excluded(*rhs)
+                    }
+                }
+            },
+        }
+    }
+
+    #[must_use]
+    pub fn union(&self, other: &Self) -> Self {
+        Self {
+            start: match (&self.start, &other.start) {
+                (TimespanBound::Unbounded, _) | (_, TimespanBound::Unbounded) => {
+                    TimespanBound::Unbounded
+                }
+                (TimespanBound::Included(lhs), TimespanBound::Included(rhs)) => {
+                    TimespanBound::Included(Timestamp::min(*lhs, *rhs))
+                }
+                (TimespanBound::Excluded(lhs), TimespanBound::Excluded(rhs)) => {
+                    TimespanBound::Excluded(Timestamp::min(*lhs, *rhs))
+                }
+                (TimespanBound::Included(lhs), TimespanBound::Excluded(rhs)) => {
+                    if lhs <= rhs {
+                        TimespanBound::Included(*lhs)
+                    } else {
+                        TimespanBound::Excluded(*rhs)
+                    }
+                }
+                (TimespanBound::Excluded(lhs), TimespanBound::Included(rhs)) => {
+                    if lhs < rhs {
+                        TimespanBound::Excluded(*lhs)
+                    } else {
+                        TimespanBound::Included(*rhs)
+                    }
+                }
+            },
+            end: match (&self.end, &other.end) {
+                (TimespanBound::Unbounded, _) | (_, TimespanBound::Unbounded) => {
+                    TimespanBound::Unbounded
+                }
+                (TimespanBound::Included(lhs), TimespanBound::Included(rhs)) => {
+                    TimespanBound::Included(Timestamp::max(*lhs, *rhs))
+                }
+                (TimespanBound::Excluded(lhs), TimespanBound::Excluded(rhs)) => {
+                    TimespanBound::Excluded(Timestamp::max(*lhs, *rhs))
+                }
+                (TimespanBound::Included(lhs), TimespanBound::Excluded(rhs)) => {
+                    if lhs >= rhs {
+                        TimespanBound::Included(*lhs)
+                    } else {
+                        TimespanBound::Excluded(*rhs)
+                    }
+                }
+                (TimespanBound::Excluded(lhs), TimespanBound::Included(rhs)) => {
+                    if lhs > rhs {
+                        TimespanBound::Excluded(*lhs)
+                    } else {
+                        TimespanBound::Included(*rhs)
+                    }
+                }
+            },
+        }
+    }
 }

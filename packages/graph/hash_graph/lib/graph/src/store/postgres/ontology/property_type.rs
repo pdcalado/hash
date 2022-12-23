@@ -39,9 +39,11 @@ impl<C: AsClient> PostgresStore<C> {
         current_resolve_depth: GraphResolveDepths,
     ) -> Pin<Box<dyn Future<Output = Result<(), QueryError>> + Send + 'a>> {
         async move {
-            let dependency_status = dependency_context
-                .ontology_dependency_map
-                .insert(property_type_id, current_resolve_depth);
+            let dependency_status = dependency_context.ontology_dependency_map.insert(
+                property_type_id,
+                current_resolve_depth,
+                &subgraph.resolved_time_projection.projected_time(),
+            );
 
             let property_type = match dependency_status {
                 DependencyStatus::Unresolved => {

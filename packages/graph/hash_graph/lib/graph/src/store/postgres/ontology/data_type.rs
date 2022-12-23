@@ -27,9 +27,11 @@ impl<C: AsClient> PostgresStore<C> {
         subgraph: &mut Subgraph,
         current_resolve_depth: GraphResolveDepths,
     ) -> Result<(), QueryError> {
-        let dependency_status = dependency_context
-            .ontology_dependency_map
-            .insert(data_type_id, current_resolve_depth);
+        let dependency_status = dependency_context.ontology_dependency_map.insert(
+            data_type_id,
+            current_resolve_depth,
+            &subgraph.resolved_time_projection.projected_time(),
+        );
 
         let _data_type = match dependency_status {
             DependencyStatus::Unresolved => {

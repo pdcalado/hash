@@ -90,6 +90,16 @@ pub struct ResolvedImage<A> {
     pub span: ResolvedTimespan<A>,
 }
 
+impl<A: Default> ResolvedImage<A> {
+    #[must_use]
+    pub fn new(start: TimespanBound<A>, end: TimespanBound<A>) -> Self {
+        Self {
+            axis: A::default(),
+            span: ResolvedTimespan { start, end },
+        }
+    }
+}
+
 impl<A: ToSchema> ToSchema for ResolvedImage<A> {
     fn schema() -> openapi::Schema {
         openapi::AllOfBuilder::new()

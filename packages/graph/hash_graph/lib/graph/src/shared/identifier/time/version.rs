@@ -4,7 +4,7 @@ use postgres_types::{FromSql, Type};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-use crate::identifier::time::timestamp::Timestamp;
+use crate::identifier::time::{timestamp::Timestamp, ResolvedTimespan, TimespanBound};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, ToSchema)]
 pub struct VersionTimespan<A> {
@@ -23,6 +23,24 @@ impl<A> VersionTimespan<A> {
         Self {
             start: Timestamp::from_anonymous(timespan.start),
             end: timespan.end.map(Timestamp::from_anonymous),
+        }
+    }
+
+    #[must_use]
+    pub fn cast<B>(&self) -> VersionTimespan<B> {
+        VersionTimespan {
+            start: self.start.cast(),
+            end: self.end.map(Timestamp::cast),
+        }
+    }
+
+    #[must_use]
+    pub fn as_timespan(&self) -> ResolvedTimespan<A> {
+        ResolvedTimespan {
+            start: TimespanBound::Included(self.start),
+            end: self
+                .end
+                .map_or(TimespanBound::Unbounded, TimespanBound::Excluded),
         }
     }
 }

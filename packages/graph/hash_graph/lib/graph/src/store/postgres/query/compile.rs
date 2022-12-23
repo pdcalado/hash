@@ -123,6 +123,10 @@ impl<'c, 'p: 'c, R: PostgresRecord> SelectCompiler<'c, 'p, R> {
 
     /// Transpiles the statement into SQL and the parameter to be passed to a prepared statement.
     pub fn compile(&self) -> (String, &[&'p (dyn ToSql + Sync)]) {
+        tracing::info!(
+            "Compiled query with axis: {:?}",
+            self.time_projection.projected_time()
+        );
         (
             self.statement.transpile_to_string(),
             &self.artifacts.parameters,

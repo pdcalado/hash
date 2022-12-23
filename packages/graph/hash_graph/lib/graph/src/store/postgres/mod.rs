@@ -33,7 +33,10 @@ use crate::{
 };
 use crate::{
     identifier::{
-        account::AccountId, ontology::OntologyTypeEditionId, time::TimeProjection, EntityVertexId,
+        account::AccountId,
+        ontology::OntologyTypeEditionId,
+        time::{ProjectedTime, ResolvedTimespan, TimeProjection},
+        EntityVertexId,
     },
     ontology::{OntologyElementMetadata, OntologyTypeWithMetadata},
     provenance::{OwnedById, ProvenanceMetadata, UpdatedById},
@@ -55,7 +58,7 @@ pub enum DependencyStatus {
 }
 
 pub struct DependencyMap<K> {
-    resolved: HashMap<K, GraphResolveDepths>,
+    resolved: HashMap<K, (GraphResolveDepths, ResolvedTimespan<ProjectedTime>)>,
 }
 
 impl<K> Default for DependencyMap<K> {
@@ -85,14 +88,24 @@ where
         &mut self,
         identifier: &K,
         resolved_depth: GraphResolveDepths,
+        timespan: &ResolvedTimespan<ProjectedTime>,
     ) -> DependencyStatus {
         match self.resolved.raw_entry_mut().from_key(identifier) {
             RawEntryMut::Vacant(entry) => {
-                entry.insert(identifier.clone(), resolved_depth);
+                entry.insert(identifier.clone(), (resolved_depth, timespan.clone()));
                 DependencyStatus::Unresolved
             }
             RawEntryMut::Occupied(entry) => {
-                if entry.into_mut().update(resolved_depth) {
+                let (previous_depth, previous_timespan) = entry.into_mut();
+                let depths_updated = previous_depth.update(resolved_depth);
+                let updated_timespan = previous_timespan.union(timespan);
+                let timespan_updated = if updated_timespan == *previous_timespan {
+                    false
+                } else {
+                    *previous_timespan = updated_timespan;
+                    true
+                };
+                if depths_updated || timespan_updated {
                     DependencyStatus::Unresolved
                 } else {
                     DependencyStatus::Resolved
