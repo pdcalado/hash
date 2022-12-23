@@ -35,7 +35,11 @@ use utoipa::{
 use self::{api_resource::RoutedResource, middleware::span_maker};
 use crate::{
     api::rest::middleware::log_request_and_response,
-    identifier::time::Timestamp,
+    identifier::time::{
+        DecisionTime, DecisionTimeProjection, ResolvedDecisionTimeProjection,
+        ResolvedTimeProjection, ResolvedTransactionTimeProjection, TimeProjection, TimespanBound,
+        Timestamp, TransactionTime, TransactionTimeProjection,
+    },
     ontology::{domain_validator::DomainValidator, Selector},
     store::{QueryError, StorePool},
 };
@@ -136,6 +140,14 @@ async fn serve_static_schema(Path(path): Path<String>) -> Result<Response, Statu
     components(
         schemas(
             Selector,
+            TimeProjection,
+            ResolvedTimeProjection,
+            DecisionTime,
+            DecisionTimeProjection,
+            ResolvedDecisionTimeProjection,
+            TransactionTime,
+            TransactionTimeProjection,
+            ResolvedTransactionTimeProjection,
         )
     ),
 )]
@@ -395,6 +407,10 @@ impl Modify for TimeSchemaAddon {
             components
                 .schemas
                 .insert("Timestamp".to_owned(), Timestamp::<()>::schema().into());
+            components.schemas.insert(
+                "TimespanBound".to_owned(),
+                TimespanBound::<()>::schema().into(),
+            );
         }
     }
 }
