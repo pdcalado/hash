@@ -19,6 +19,7 @@ pub use self::{
     projection::{Projection, ResolvedProjection},
     timespan::{ResolvedTimespan, Timespan},
     timestamp::Timestamp,
+    version::VersionTimespan,
 };
 
 fn parse_bound(

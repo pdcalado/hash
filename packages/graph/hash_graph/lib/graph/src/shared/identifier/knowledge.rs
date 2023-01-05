@@ -10,7 +10,10 @@ use utoipa::{openapi, ToSchema};
 use crate::{
     identifier::{
         account::AccountId,
-        time::{DecisionTimeVersionTimespan, TransactionTimeVersionTimespan},
+        time::{
+            DecisionTimeVersionTimespan, ProjectedTime, TimeAxis, TransactionTimeVersionTimespan,
+            VersionTimespan,
+        },
         EntityVertexId,
     },
     knowledge::{Entity, EntityUuid},
@@ -114,6 +117,14 @@ impl EntityVersion {
     #[must_use]
     pub const fn transaction_time(&self) -> TransactionTimeVersionTimespan {
         self.transaction_time
+    }
+
+    #[must_use]
+    pub fn projected_time(&self, axis: TimeAxis) -> VersionTimespan<ProjectedTime> {
+        match axis {
+            TimeAxis::DecisionTime => self.decision_time().cast(),
+            TimeAxis::TransactionTime => self.transaction_time().cast(),
+        }
     }
 }
 

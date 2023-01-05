@@ -25,6 +25,14 @@ impl<A> VersionTimespan<A> {
             end: timespan.end.map(Timestamp::from_anonymous),
         }
     }
+
+    #[must_use]
+    pub fn cast<B>(self) -> VersionTimespan<B> {
+        VersionTimespan {
+            start: self.start.cast(),
+            end: self.end.map(Timestamp::cast),
+        }
+    }
 }
 
 impl<A> RangeBounds<Timestamp<A>> for VersionTimespan<A> {
