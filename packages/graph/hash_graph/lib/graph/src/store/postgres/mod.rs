@@ -9,6 +9,7 @@ use std::{
     collections::{hash_map::RawEntryMut, HashMap},
     fmt::Debug,
     hash::Hash,
+    ops::RangeBounds,
 };
 
 use async_trait::async_trait;
@@ -33,7 +34,10 @@ use crate::{
 };
 use crate::{
     identifier::{
-        account::AccountId, ontology::OntologyTypeEditionId, time::TimeProjection, EntityVertexId,
+        account::AccountId,
+        ontology::OntologyTypeEditionId,
+        time::{ProjectedTime, ResolvedTimespan, TimeProjection},
+        EntityVertexId,
     },
     ontology::{OntologyElementMetadata, OntologyTypeWithMetadata},
     provenance::{OwnedById, ProvenanceMetadata, UpdatedById},
@@ -55,7 +59,7 @@ pub enum DependencyStatus {
 }
 
 pub struct DependencyMap<K> {
-    resolved: HashMap<K, GraphResolveDepths>,
+    resolved: HashMap<K, (GraphResolveDepths, ResolvedTimespan<ProjectedTime>)>,
 }
 
 impl<K> Default for DependencyMap<K> {
@@ -85,14 +89,44 @@ where
         &mut self,
         identifier: &K,
         resolved_depth: GraphResolveDepths,
+        timespan: &ResolvedTimespan<ProjectedTime>,
     ) -> DependencyStatus {
         match self.resolved.raw_entry_mut().from_key(identifier) {
             RawEntryMut::Vacant(entry) => {
-                entry.insert(identifier.clone(), resolved_depth);
+                entry.insert(identifier.clone(), (resolved_depth, timespan.clone()));
                 DependencyStatus::Unresolved
             }
             RawEntryMut::Occupied(entry) => {
-                if entry.into_mut().update(resolved_depth) {
+                let (previous_depth, previous_timespan) = entry.into_mut();
+                let depths_updated = previous_depth.update(resolved_depth);
+
+                let updated_timespan = previous_timespan.union(timespan).unwrap_or_else(|| {
+                    if previous_timespan.is_strictly_left_of(timespan) {
+                        ResolvedTimespan::new((
+                            previous_timespan.start_bound().cloned(),
+                            timespan.end_bound().cloned(),
+                        ))
+                    } else if previous_timespan.is_strictly_right_of(timespan) {
+                        ResolvedTimespan::new((
+                            timespan.start_bound().cloned(),
+                            previous_timespan.end_bound().cloned(),
+                        ))
+                    } else {
+                        // If `union` is `None`, the timespans are not overlapping
+                        unreachable!(
+                            "The timespan should be either strictly left of, right of, or \
+                             overlapping with the previous timespan"
+                        );
+                    }
+                });
+
+                let timespan_updated = if *previous_timespan == updated_timespan {
+                    false
+                } else {
+                    *previous_timespan = updated_timespan;
+                    true
+                };
+                if depths_updated || timespan_updated {
                     DependencyStatus::Unresolved
                 } else {
                     DependencyStatus::Resolved
