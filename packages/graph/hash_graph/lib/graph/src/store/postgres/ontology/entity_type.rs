@@ -7,7 +7,7 @@ use tokio_postgres::GenericClient;
 use type_system::{EntityType, EntityTypeReference, PropertyTypeReference};
 
 use crate::{
-    identifier::ontology::OntologyTypeEditionId,
+    identifier::{ontology::OntologyTypeEditionId, time::ResolvedTimeProjection},
     ontology::{EntityTypeWithMetadata, OntologyElementMetadata, OntologyTypeWithMetadata},
     provenance::{OwnedById, UpdatedById},
     store::{
@@ -36,20 +36,22 @@ impl<C: AsClient> PostgresStore<C> {
         dependency_context: &'a mut DependencyContext,
         subgraph: &'a mut Subgraph,
         current_resolve_depth: GraphResolveDepths,
+        time_projection: &'a ResolvedTimeProjection,
     ) -> Pin<Box<dyn Future<Output = Result<(), QueryError>> + Send + 'a>> {
         async move {
-            let dependency_status = dependency_context
-                .ontology_dependency_map
-                .insert(entity_type_id, current_resolve_depth);
+            let dependency_status = dependency_context.ontology_dependency_map.insert(
+                entity_type_id,
+                current_resolve_depth,
+                &time_projection.projected_time(),
+            );
 
             let entity_type = match dependency_status {
                 DependencyStatus::Unresolved => {
-                    let time_projection = subgraph.resolved_time_projection.clone();
                     subgraph
                         .get_or_read::<EntityTypeWithMetadata>(
                             self,
                             entity_type_id,
-                            &time_projection,
+                            time_projection,
                         )
                         .await?
                 }
@@ -128,6 +130,7 @@ impl<C: AsClient> PostgresStore<C> {
                             },
                             ..current_resolve_depth
                         },
+                        time_projection,
                     )
                     .await?;
                 }
@@ -157,6 +160,7 @@ impl<C: AsClient> PostgresStore<C> {
                             },
                             ..current_resolve_depth
                         },
+                        time_projection,
                     )
                     .await?;
                 }
@@ -186,6 +190,7 @@ impl<C: AsClient> PostgresStore<C> {
                                 },
                                 ..current_resolve_depth
                             },
+                            time_projection,
                         )
                         .await?;
 
@@ -220,6 +225,7 @@ impl<C: AsClient> PostgresStore<C> {
                                         },
                                         ..current_resolve_depth
                                     },
+                                    time_projection,
                                 )
                                 .await?;
                             }
@@ -297,10 +303,10 @@ impl<C: AsClient> EntityTypeStore for PostgresStore<C> {
         );
         let mut dependency_context = DependencyContext::default();
         let time_axis = subgraph.resolved_time_projection.time_axis();
+        let time_projection = subgraph.resolved_time_projection.clone();
 
         for entity_type in
-            Read::<EntityTypeWithMetadata>::read(self, filter, &subgraph.resolved_time_projection)
-                .await?
+            Read::<EntityTypeWithMetadata>::read(self, filter, &time_projection).await?
         {
             let vertex_id = entity_type.vertex_id(time_axis);
             // Insert the vertex into the subgraph to avoid another lookup when traversing it
@@ -311,6 +317,7 @@ impl<C: AsClient> EntityTypeStore for PostgresStore<C> {
                 &mut dependency_context,
                 &mut subgraph,
                 graph_resolve_depths,
+                &time_projection,
             )
             .await?;
 

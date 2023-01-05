@@ -13,7 +13,10 @@ use crate::{
     identifier::{
         knowledge::{EntityEditionId, EntityId, EntityRecordId, EntityVersion},
         ontology::OntologyTypeEditionId,
-        time::{DecisionTimeVersionTimespan, DecisionTimestamp, TransactionTimeVersionTimespan},
+        time::{
+            DecisionTimeVersionTimespan, DecisionTimestamp, ResolvedTimeProjection,
+            ResolvedTimespan, TransactionTimeVersionTimespan,
+        },
         EntityVertexId,
     },
     knowledge::{Entity, EntityLinkOrder, EntityMetadata, EntityProperties, EntityUuid, LinkData},
@@ -46,13 +49,16 @@ impl<C: AsClient> PostgresStore<C> {
         dependency_context: &'a mut DependencyContext,
         subgraph: &'a mut Subgraph,
         current_resolve_depth: GraphResolveDepths,
+        time_projection: &'a ResolvedTimeProjection,
     ) -> Pin<Box<dyn Future<Output = Result<(), QueryError>> + Send + 'a>> {
         async move {
-            let dependency_status = dependency_context
-                .knowledge_dependency_map
-                .insert(&entity_vertex_id, current_resolve_depth);
+            let dependency_status = dependency_context.knowledge_dependency_map.insert(
+                &entity_vertex_id,
+                current_resolve_depth,
+                &time_projection.projected_time(),
+            );
 
-            let time_axis = subgraph.resolved_time_projection.time_axis();
+            let time_axis = time_projection.time_axis();
 
             let entity: &Entity = match dependency_status {
                 DependencyStatus::Unresolved => {
@@ -67,6 +73,12 @@ impl<C: AsClient> PostgresStore<C> {
                 }
 
                 DependencyStatus::Resolved => return Ok(()),
+            };
+
+            let Some(time_projection) = time_projection.intersect_projected_time(&ResolvedTimespan::new(
+                entity.metadata().version().projected_time(time_axis),
+            )) else {
+                return Ok(());
             };
 
             if current_resolve_depth.is_of_type.outgoing > 0 {
@@ -92,6 +104,7 @@ impl<C: AsClient> PostgresStore<C> {
                         },
                         ..current_resolve_depth
                     },
+                    &time_projection,
                 )
                 .await?;
             }
@@ -100,7 +113,7 @@ impl<C: AsClient> PostgresStore<C> {
                 for outgoing_link_entity in <Self as Read<Entity>>::read(
                     self,
                     &Filter::for_outgoing_link_by_source_entity_vertex_id(entity_vertex_id),
-                    &subgraph.resolved_time_projection,
+                    &time_projection,
                 )
                 .await?
                 {
@@ -129,6 +142,7 @@ impl<C: AsClient> PostgresStore<C> {
                             },
                             ..current_resolve_depth
                         },
+                        &time_projection,
                     )
                     .await?;
                 }
@@ -138,7 +152,7 @@ impl<C: AsClient> PostgresStore<C> {
                 for incoming_link_entity in <Self as Read<Entity>>::read(
                     self,
                     &Filter::for_incoming_link_by_source_entity_vertex_id(entity_vertex_id),
-                    &subgraph.resolved_time_projection,
+                    &time_projection,
                 )
                 .await?
                 {
@@ -167,6 +181,7 @@ impl<C: AsClient> PostgresStore<C> {
                             },
                             ..current_resolve_depth
                         },
+                        &time_projection,
                     )
                     .await?;
                 }
@@ -176,7 +191,7 @@ impl<C: AsClient> PostgresStore<C> {
                 for left_entity in <Self as Read<Entity>>::read(
                     self,
                     &Filter::for_left_entity_by_entity_vertex_id(entity_vertex_id),
-                    &subgraph.resolved_time_projection,
+                    &time_projection,
                 )
                 .await?
                 {
@@ -205,6 +220,7 @@ impl<C: AsClient> PostgresStore<C> {
                             },
                             ..current_resolve_depth
                         },
+                        &time_projection,
                     )
                     .await?;
                 }
@@ -214,7 +230,7 @@ impl<C: AsClient> PostgresStore<C> {
                 for right_entity in <Self as Read<Entity>>::read(
                     self,
                     &Filter::for_right_entity_by_entity_vertex_id(entity_vertex_id),
-                    &subgraph.resolved_time_projection,
+                    &time_projection,
                 )
                 .await?
                 {
@@ -243,6 +259,7 @@ impl<C: AsClient> PostgresStore<C> {
                             },
                             ..current_resolve_depth
                         },
+                        &time_projection,
                     )
                     .await?;
                 }
@@ -462,9 +479,9 @@ impl<C: AsClient> EntityStore for PostgresStore<C> {
         );
         let mut dependency_context = DependencyContext::default();
         let time_axis = subgraph.resolved_time_projection.time_axis();
+        let time_projection = subgraph.resolved_time_projection.clone();
 
-        for entity in Read::<Entity>::read(self, filter, &subgraph.resolved_time_projection).await?
-        {
+        for entity in Read::<Entity>::read(self, filter, &time_projection).await? {
             let vertex_id = entity.vertex_id(time_axis);
             // Insert the vertex into the subgraph to avoid another lookup when traversing it
             subgraph.insert(&vertex_id, entity);
@@ -474,6 +491,7 @@ impl<C: AsClient> EntityStore for PostgresStore<C> {
                 &mut dependency_context,
                 &mut subgraph,
                 graph_resolve_depths,
+                &time_projection,
             )
             .await?;
 

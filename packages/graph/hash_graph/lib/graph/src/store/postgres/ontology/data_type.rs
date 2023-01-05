@@ -4,7 +4,7 @@ use tokio_postgres::GenericClient;
 use type_system::DataType;
 
 use crate::{
-    identifier::ontology::OntologyTypeEditionId,
+    identifier::{ontology::OntologyTypeEditionId, time::ResolvedTimeProjection},
     ontology::{DataTypeWithMetadata, OntologyElementMetadata},
     provenance::{OwnedById, UpdatedById},
     store::{
@@ -26,16 +26,18 @@ impl<C: AsClient> PostgresStore<C> {
         dependency_context: &mut DependencyContext,
         subgraph: &mut Subgraph,
         current_resolve_depth: GraphResolveDepths,
+        time_projection: &ResolvedTimeProjection,
     ) -> Result<(), QueryError> {
-        let dependency_status = dependency_context
-            .ontology_dependency_map
-            .insert(data_type_id, current_resolve_depth);
+        let dependency_status = dependency_context.ontology_dependency_map.insert(
+            data_type_id,
+            current_resolve_depth,
+            &time_projection.projected_time(),
+        );
 
         let _data_type = match dependency_status {
             DependencyStatus::Unresolved => {
-                let time_projection = subgraph.resolved_time_projection.clone();
                 subgraph
-                    .get_or_read::<DataTypeWithMetadata>(self, data_type_id, &time_projection)
+                    .get_or_read::<DataTypeWithMetadata>(self, data_type_id, time_projection)
                     .await?
             }
             DependencyStatus::Resolved => return Ok(()),
@@ -98,11 +100,9 @@ impl<C: AsClient> DataTypeStore for PostgresStore<C> {
         );
         let mut dependency_context = DependencyContext::default();
         let time_axis = subgraph.resolved_time_projection.time_axis();
+        let time_projection = subgraph.resolved_time_projection.clone();
 
-        for data_type in
-            Read::<DataTypeWithMetadata>::read(self, filter, &subgraph.resolved_time_projection)
-                .await?
-        {
+        for data_type in Read::<DataTypeWithMetadata>::read(self, filter, &time_projection).await? {
             let vertex_id = data_type.vertex_id(time_axis);
             // Insert the vertex into the subgraph to avoid another lookup when traversing it
             subgraph.insert(&vertex_id, data_type);
@@ -112,6 +112,7 @@ impl<C: AsClient> DataTypeStore for PostgresStore<C> {
                 &mut dependency_context,
                 &mut subgraph,
                 graph_resolve_depths,
+                &time_projection,
             )
             .await?;
 
