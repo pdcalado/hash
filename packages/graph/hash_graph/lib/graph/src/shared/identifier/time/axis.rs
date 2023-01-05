@@ -126,6 +126,23 @@ impl ResolvedTimeProjection {
             Self::TransactionTime(projection) => projection.image().cast(),
         }
     }
+
+    #[must_use]
+    pub fn intersect_projected_time(
+        &self,
+        timespan: &ResolvedTimespan<ProjectedTime>,
+    ) -> Option<Self> {
+        Some(match self {
+            Self::DecisionTime(projection) => Self::DecisionTime(ResolvedProjection::new(
+                projection.kernel(),
+                projection.image().intersect(&timespan.cast())?,
+            )),
+            Self::TransactionTime(projection) => Self::TransactionTime(ResolvedProjection::new(
+                projection.kernel(),
+                projection.image().intersect(&timespan.cast())?,
+            )),
+        })
+    }
 }
 
 impl ToSchema for ResolvedTimeProjection {
