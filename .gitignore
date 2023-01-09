@@ -110,3 +110,4 @@ seed-users.json
 
 # Workspace-specific
 /packages/hash/design-system/storybook-static
+/libs/status/crate/src/gen
