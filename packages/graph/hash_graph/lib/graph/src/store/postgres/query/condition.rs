@@ -13,6 +13,9 @@ pub enum Condition<'p> {
     Equal(Option<Expression<'p>>, Option<Expression<'p>>),
     NotEqual(Option<Expression<'p>>, Option<Expression<'p>>),
     RangeContains(Expression<'p>, Expression<'p>),
+    StartsWith(Expression<'p>, Expression<'p>),
+    EndsWith(Expression<'p>, Expression<'p>),
+    Contains(Expression<'p>, Expression<'p>),
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -81,6 +84,23 @@ impl Transpile for Condition<'_> {
                 lhs.transpile(fmt)?;
                 fmt.write_str(" @> ")?;
                 rhs.transpile(fmt)
+            }
+            Condition::StartsWith(lhs, rhs) => {
+                lhs.transpile(fmt)?;
+                fmt.write_str(" LIKE ")?;
+                rhs.transpile(fmt)?;
+                fmt.write_str(" || '%'")
+            }
+            Condition::EndsWith(lhs, rhs) => {
+                lhs.transpile(fmt)?;
+                fmt.write_str(" LIKE '%' || ")?;
+                rhs.transpile(fmt)
+            }
+            Condition::Contains(lhs, rhs) => {
+                lhs.transpile(fmt)?;
+                fmt.write_str(" LIKE '%' || ")?;
+                rhs.transpile(fmt)?;
+                fmt.write_str(" || '%'")
             }
         }
     }

@@ -42,6 +42,9 @@ pub enum Filter<'p, R: Record + ?Sized> {
         Option<FilterExpression<'p, R>>,
         Option<FilterExpression<'p, R>>,
     ),
+    StartsWith(FilterExpression<'p, R>, FilterExpression<'p, R>),
+    EndsWith(FilterExpression<'p, R>, FilterExpression<'p, R>),
+    Contains(FilterExpression<'p, R>, FilterExpression<'p, R>),
 }
 
 impl<'p, R> Filter<'p, R>
@@ -318,6 +321,15 @@ where
                 ) => parameter.convert_to_parameter_type(path.expected_type())?,
                 (..) => {}
             },
+            Self::StartsWith(lhs, rhs) | Self::EndsWith(lhs, rhs) | Self::Contains(lhs, rhs) => {
+                match (lhs, rhs) {
+                    (FilterExpression::Parameter(parameter), FilterExpression::Path(path))
+                    | (FilterExpression::Path(path), FilterExpression::Parameter(parameter)) => {
+                        parameter.convert_to_parameter_type(path.expected_type())?;
+                    }
+                    (..) => {}
+                }
+            }
         }
 
         Ok(())
