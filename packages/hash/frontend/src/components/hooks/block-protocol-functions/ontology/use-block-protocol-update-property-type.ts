@@ -6,6 +6,7 @@ import {
   UpdatePropertyTypeMutationVariables,
 } from "../../../../graphql/api-types.gen";
 import { updatePropertyTypeMutation } from "../../../../graphql/queries/ontology/property-type.queries";
+// @todo-0.3 implement this in @blockprotocol/graph
 import { UpdatePropertyTypeMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolUpdatePropertyType = (

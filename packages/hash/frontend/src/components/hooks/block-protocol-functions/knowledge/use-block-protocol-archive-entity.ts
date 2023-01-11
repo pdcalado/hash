@@ -1,4 +1,6 @@
 import { useMutation } from "@apollo/client";
+import { EmbedderGraphMessageCallbacks } from "@blockprotocol/graph";
+import { EntityId } from "@hashintel/hash-shared/types";
 import { useCallback } from "react";
 
 import {
@@ -6,12 +8,11 @@ import {
   ArchiveEntityMutationVariables,
 } from "../../../../graphql/api-types.gen";
 import { archiveEntityMutation } from "../../../../graphql/queries/knowledge/entity.queries";
-import { ArchiveEntityMessageCallback } from "./knowledge-shim";
 
 export const useBlockProtocolArchiveEntity = (
   readonly?: boolean,
 ): {
-  archiveEntity: ArchiveEntityMessageCallback;
+  archiveEntity: EmbedderGraphMessageCallbacks["deleteEntity"];
 } => {
   const [archiveEntityFn] = useMutation<
     ArchiveEntityMutation,
@@ -21,38 +22,41 @@ export const useBlockProtocolArchiveEntity = (
     fetchPolicy: "no-cache",
   });
 
-  const archiveEntity: ArchiveEntityMessageCallback = useCallback(
-    async ({ data }) => {
-      if (readonly) {
-        return {
-          errors: [
-            {
-              code: "FORBIDDEN",
-              message: "Operation can't be carried out in readonly mode",
-            },
-          ],
-        };
-      }
+  const archiveEntity: EmbedderGraphMessageCallbacks["deleteEntity"] =
+    useCallback(
+      async ({ data }) => {
+        if (readonly) {
+          return {
+            errors: [
+              {
+                code: "FORBIDDEN",
+                message: "Operation can't be carried out in readonly mode",
+              },
+            ],
+          };
+        }
 
-      if (!data) {
-        return {
-          errors: [
-            {
-              code: "INVALID_INPUT",
-              message: "'data' must be provided for archiveEntity",
-            },
-          ],
-        };
-      }
+        if (!data) {
+          return {
+            errors: [
+              {
+                code: "INVALID_INPUT",
+                message: "'data' must be provided for archiveEntity",
+              },
+            ],
+          };
+        }
 
-      const { entityId } = data;
+        const { entityId } = data;
 
-      await archiveEntityFn({ variables: { entityId } });
+        await archiveEntityFn({
+          variables: { entityId: entityId as EntityId }, // @todo-0.3 consider validating that this matches the id format
+        });
 
-      return { data: true };
-    },
-    [archiveEntityFn, readonly],
-  );
+        return { data: true };
+      },
+      [archiveEntityFn, readonly],
+    );
 
   return { archiveEntity };
 };

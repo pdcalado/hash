@@ -7,6 +7,7 @@ import {
   CreateEntityTypeMutationVariables,
 } from "../../../../graphql/api-types.gen";
 import { createEntityTypeMutation } from "../../../../graphql/queries/ontology/entity-type.queries";
+// @todo-0.3 implement this in @blockprotocol/graph
 import { CreateEntityTypeMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolCreateEntityType = (

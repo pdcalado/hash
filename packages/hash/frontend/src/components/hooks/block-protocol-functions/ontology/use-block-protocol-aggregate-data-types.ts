@@ -7,6 +7,7 @@ import {
   GetAllLatestDataTypesQueryVariables,
 } from "../../../../graphql/api-types.gen";
 import { getAllLatestDataTypesQuery } from "../../../../graphql/queries/ontology/data-type.queries";
+// @todo-0.3 -- implement this in @blockprotocol/graph (or some general aggregation method that covers it)
 import { AggregateDataTypesMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolAggregateDataTypes = (): {

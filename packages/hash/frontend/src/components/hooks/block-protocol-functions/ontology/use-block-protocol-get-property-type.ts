@@ -7,6 +7,7 @@ import {
   GetPropertyTypeQueryVariables,
 } from "../../../../graphql/api-types.gen";
 import { getPropertyTypeQuery } from "../../../../graphql/queries/ontology/property-type.queries";
+// @todo-0.3 consider whether we need 'get' requests for types in BP spec
 import { GetPropertyTypeMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolGetPropertyType = (): {

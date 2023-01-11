@@ -1,4 +1,5 @@
 import { useLazyQuery } from "@apollo/client";
+import { EmbedderGraphMessageCallbacks } from "@blockprotocol/graph";
 import { Subgraph, SubgraphRootTypes } from "@hashintel/hash-subgraph";
 import { useCallback } from "react";
 
@@ -7,10 +8,9 @@ import {
   GetAllLatestEntityTypesQueryVariables,
 } from "../../../../graphql/api-types.gen";
 import { getAllLatestEntityTypesQuery } from "../../../../graphql/queries/ontology/entity-type.queries";
-import { AggregateEntityTypesMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolAggregateEntityTypes = (): {
-  aggregateEntityTypes: AggregateEntityTypesMessageCallback;
+  aggregateEntityTypes: EmbedderGraphMessageCallbacks["aggregateEntityTypes"];
 } => {
   const [aggregateFn] = useLazyQuery<
     GetAllLatestEntityTypesQuery,
@@ -20,7 +20,10 @@ export const useBlockProtocolAggregateEntityTypes = (): {
     fetchPolicy: "no-cache",
   });
 
-  const aggregateEntityTypes = useCallback<AggregateEntityTypesMessageCallback>(
+  const aggregateEntityTypes = useCallback<
+    EmbedderGraphMessageCallbacks["aggregateEntityTypes"]
+  >(
+    // @ts-expect-error -- todo-0.3 implement aggregateEntityTypes in HASH
     async ({ data }) => {
       if (!data) {
         return {
@@ -33,6 +36,7 @@ export const useBlockProtocolAggregateEntityTypes = (): {
         };
       }
 
+      // @ts-expect-error -- todo-0.3 update aggregation data in @blockprotocol/graph
       const { graphResolveDepths } = data;
 
       /**

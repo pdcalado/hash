@@ -7,6 +7,7 @@ import {
   CreatePropertyTypeMutationVariables,
 } from "../../../../graphql/api-types.gen";
 import { createPropertyTypeMutation } from "../../../../graphql/queries/ontology/property-type.queries";
+// @todo-0.3 implement this in @blockprotocol/graph
 import { CreatePropertyTypeMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolCreatePropertyType = (

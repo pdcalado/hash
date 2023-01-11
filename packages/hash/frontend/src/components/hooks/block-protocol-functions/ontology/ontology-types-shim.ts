@@ -32,7 +32,6 @@ export type OntologyCallbacks = {
   getPropertyType: GetPropertyTypeMessageCallback;
   updatePropertyType: UpdatePropertyTypeMessageCallback;
   createEntityType: CreateEntityTypeMessageCallback;
-  aggregateEntityTypes: AggregateEntityTypesMessageCallback;
   getEntityType: GetEntityTypeMessageCallback;
   updateEntityType: UpdateEntityTypeMessageCallback;
 };
@@ -112,25 +111,6 @@ export type CreateEntityTypeMessageCallback = MessageCallback<
   null,
   EntityTypeWithMetadata,
   CreateResourceError
->;
-
-export type AggregateEntityTypesRequest = {
-  graphResolveDepths?: Partial<
-    Pick<
-      Subgraph["depths"],
-      | "constrainsValuesOn"
-      | "constrainsPropertiesOn"
-      | "constrainsLinksOn"
-      | "constrainsLinkDestinationsOn"
-    >
-  >;
-};
-
-export type AggregateEntityTypesMessageCallback = MessageCallback<
-  AggregateEntityTypesRequest,
-  null,
-  Subgraph<SubgraphRootTypes["entityType"]>,
-  ReadOrModifyResourceError
 >;
 
 export type GetEntityTypeRequest = {

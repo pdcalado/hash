@@ -7,6 +7,7 @@ import {
   GetAllLatestPropertyTypesQueryVariables,
 } from "../../../../graphql/api-types.gen";
 import { getAllLatestPropertyTypesQuery } from "../../../../graphql/queries/ontology/property-type.queries";
+// @todo-0.3 -- implement this in @blockprotocol/graph (or some general aggregation method that covers it)
 import { AggregatePropertyTypesMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolAggregatePropertyTypes = (): {

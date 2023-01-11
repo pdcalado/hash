@@ -1,4 +1,6 @@
 import { useLazyQuery } from "@apollo/client";
+import { EmbedderGraphMessageCallbacks } from "@blockprotocol/graph";
+import { EntityId } from "@hashintel/hash-shared/types";
 import { Subgraph, SubgraphRootTypes } from "@hashintel/hash-subgraph";
 import { useCallback } from "react";
 
@@ -7,10 +9,9 @@ import {
   GetEntityQueryVariables,
 } from "../../../../graphql/api-types.gen";
 import { getEntityQuery } from "../../../../graphql/queries/knowledge/entity.queries";
-import { GetEntityMessageCallback } from "./knowledge-shim";
 
 export const useBlockProtocolGetEntity = (): {
-  getEntity: GetEntityMessageCallback;
+  getEntity: EmbedderGraphMessageCallbacks["getEntity"];
 } => {
   const [getEntityFn] = useLazyQuery<GetEntityQuery, GetEntityQueryVariables>(
     getEntityQuery,
@@ -20,7 +21,8 @@ export const useBlockProtocolGetEntity = (): {
     },
   );
 
-  const getEntity = useCallback<GetEntityMessageCallback>(
+  const getEntity = useCallback<EmbedderGraphMessageCallbacks["getEntity"]>(
+    // @ts-expect-error todo-0.3 fix mismatch between EntityId in @blockprotocol/graph and HASH
     async ({ data }) => {
       if (!data) {
         return {
@@ -37,7 +39,7 @@ export const useBlockProtocolGetEntity = (): {
 
       const { data: response } = await getEntityFn({
         variables: {
-          entityId,
+          entityId: entityId as EntityId, // @todo-0.3 consider validating that this matches the id format
           constrainsValuesOn: { outgoing: 255 },
           constrainsPropertiesOn: { outgoing: 255 },
           constrainsLinksOn: { outgoing: 1 },

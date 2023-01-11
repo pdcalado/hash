@@ -7,6 +7,7 @@ import {
   GetEntityTypeQueryVariables,
 } from "../../../../graphql/api-types.gen";
 import { getEntityTypeQuery } from "../../../../graphql/queries/ontology/entity-type.queries";
+// @todo-0.3 consider whether we need 'get' requests for types in BP spec
 import { GetEntityTypeMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolGetEntityType = (): {

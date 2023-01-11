@@ -7,6 +7,7 @@ import {
   GetDataTypeQueryVariables,
 } from "../../../../graphql/api-types.gen";
 import { getDataTypeQuery } from "../../../../graphql/queries/ontology/data-type.queries";
+// @todo-0.3 consider whether we need 'get' requests for types in BP spec
 import { GetDataTypeMessageCallback } from "./ontology-types-shim";
 
 export const useBlockProtocolGetDataType = (): {
