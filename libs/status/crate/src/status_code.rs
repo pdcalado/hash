@@ -157,12 +157,8 @@ pub enum StatusCode {
     DataLoss,
 }
 
-impl Display for StatusCode {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            serde_json::to_string(self).map_err(|_| std::fmt::Error::default())?
-        )
+impl fmt::Display for StatusCode {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.serialize(fmt)
     }
 }
