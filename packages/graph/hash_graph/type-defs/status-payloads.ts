@@ -1,2 +1,5 @@
-export { ErrorInfo } from "@hashintel/status/type-defs/payloads/error-info";
-export { RequestInfo } from "@hashintel/status/type-defs/payloads/request-info";
+export {
+  ErrorInfo,
+  RequestInfo,
+  ResourceInfo,
+} from "@hashintel/status/type-defs/status-payloads";
