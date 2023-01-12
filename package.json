@@ -11,6 +11,7 @@
       "packages/graph/clients",
       "packages/graph/clients/typescript",
       "packages/graph/migrations",
+      "packages/graph/hash_graph",
       "packages/hash/api",
       "packages/hash/backend-utils",
       "packages/hash/design-system",

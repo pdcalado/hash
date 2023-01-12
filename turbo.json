@@ -17,6 +17,10 @@
     },
     "lint:tsc": {
       "outputs": []
+    },
+    "@hashintel/hash-graph#codegen": {
+      "dependsOn": ["@hashintel/status#build"],
+      "outputs": ["lib/graph/src/api/gen/**"]
     }
   }
 }
